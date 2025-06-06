@@ -280,8 +280,7 @@ function makeDemoArtists(langKey) {
   };
 }
 
-// For lyrics tab: English and Hindi only
-const canShowLyrics = (langKey) => langKey === "en" || langKey === "hi";
+const canShowLyrics = (langKey) => langKey === "en";
 
 function fakeAuth({ username, password, isSignup }) {
   // Simple mock authentication – always succeeds if non-empty
