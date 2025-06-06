@@ -248,84 +248,27 @@ function AuthForm({ onAuthComplete }) {
 
 /**
  * PUBLIC_INTERFACE
- * Dashboard showing all language columns with YouTube-powered suggestions and search.
+ * Dashboard showing language names in a 3x2 row-wise grid, using theme colors.
  */
-function Dashboard({ username }) {
-  // State: manages which (if any) lyrics tab/column is open, and tracking its song
-  const [selectedLyrics, setSelectedLyrics] = useState(null); // { langKey, songIndex }
-
-  // Per-language initial suggestions (YouTube)
-  const [suggested, setSuggested] = useState({});
-  const [loading, setLoading] = useState({});
-  const [error, setError] = useState({});
-
-  useEffect(() => {
-    // On mount, fetch suggestions for each language from YouTube
-    LANGUAGES.forEach(async (lang) => {
-      setLoading(l => ({ ...l, [lang.key]: true }));
-      setError(e => ({ ...e, [lang.key]: null }));
-      try {
-        const videos = await fetchYouTubeVideos(lang.query, { maxResults: 6 });
-        setSuggested(s => ({ ...s, [lang.key]: videos }));
-      } catch (err) {
-        setError(e => ({ ...e, [lang.key]: err.message || "Error" }));
-      } finally {
-        setLoading(l => ({ ...l, [lang.key]: false }));
-      }
-    });
-  }, []);
-
-  // Handle song click for lyrics panel
-  const handleSongClick = (langKey, idx) => {
-    if (canShowLyrics(langKey)) {
-      setSelectedLyrics({ langKey, songIndex: idx });
-    }
-  };
-  const closeLyrics = () => setSelectedLyrics(null);
-
+function Dashboard() {
+  // Only display the six languages in a 3x2 grid, row-wise.
   return (
-    <main style={{
-      minHeight: "calc(100vh - 70px)",
-      marginTop: 75, // For navbar
-      background: COLORS.lightBg,
-      padding: "0",
-      overflowX: "auto"
-    }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "flex-start",
-          width: "100%",
-          maxWidth: 1450,
-          margin: "0 auto",
-          gap: 18,
-          boxSizing: "border-box",
-          padding: "18px 16px 30px 16px"
-        }}
-      >
+    <main
+      style={{
+        minHeight: "calc(100vh - 70px)",
+        marginTop: 75,
+        background: COLORS.lightBg,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <div className="lang-grid">
         {LANGUAGES.map((lang) => (
-          <LanguageColumn
-            key={lang.key}
-            language={lang}
-            songSuggestions={suggested[lang.key] || []}
-            loading={loading[lang.key]}
-            error={error[lang.key]}
-            onSongClick={(idx) => handleSongClick(lang.key, idx)}
-            showLyricsTab={
-              selectedLyrics &&
-              selectedLyrics.langKey === lang.key &&
-              canShowLyrics(lang.key)
-            }
-            selectedLyricsSongIdx={
-              selectedLyrics && selectedLyrics.langKey === lang.key
-                ? selectedLyrics.songIndex
-                : undefined
-            }
-            onCloseLyrics={closeLyrics}
-            // inject lyrics fetch for columns
-            fetchLyricsApi={fetchLyrics}
-          />
+          <div className="lang-tile" key={lang.key}>
+            {lang.label}
+          </div>
         ))}
       </div>
     </main>
