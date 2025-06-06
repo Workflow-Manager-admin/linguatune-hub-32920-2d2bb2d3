@@ -406,13 +406,17 @@ function AuthForm({ onAuthComplete }) {
   );
 }
 
-// PUBLIC_INTERFACE - Updated Dashboard for language-artist-song-player view
+/* PUBLIC_INTERFACE - Updated Dashboard for language-artist-song-player view */
 function Dashboard({ username }) {
+  // Moved all hooks to the top level per rules-of-hooks
   const [selectedLanguage, setSelectedLanguage] = useState(null);
   const [songVideos, setSongVideos] = useState({});
   const [loadingMap, setLoadingMap] = useState({});
   const [errorMap, setErrorMap] = useState({});
   const [openPlayers, setOpenPlayers] = useState({}); // {artist:song: true}
+  const [searchVal, setSearchVal] = useState("");
+  // New: Make artist selection state always present so hook order remains valid
+  const [activeArtistIdx, setActiveArtistIdx] = useState(null);
 
   // Fetch videos for all artists/songs in the selected language
   useEffect(() => {
@@ -456,15 +460,16 @@ function Dashboard({ username }) {
     return () => { ignore = true; };
   }, [selectedLanguage]);
 
-  // Back & Search state for language view
-  const [searchVal, setSearchVal] = useState("");
-  useEffect(() => { setSearchVal(""); }, [selectedLanguage]);
+  // Reset search value and artist selection on language change
+  useEffect(() => {
+    setSearchVal("");
+    setActiveArtistIdx(null);
+  }, [selectedLanguage]);
 
   // If a language is selected, show artist columns. Clicking an artist reveals their songs (with YouTube & lyrics).
   if (selectedLanguage) {
     const langObj = LANGUAGES.find((l) => l.key === selectedLanguage);
     const artists = ARTISTS[selectedLanguage];
-    const [activeArtistIdx, setActiveArtistIdx] = useState(null);
 
     // Allow search artists by name (optional: keep for quick QA, can be simplified for prod)
     const filteredArtists =
