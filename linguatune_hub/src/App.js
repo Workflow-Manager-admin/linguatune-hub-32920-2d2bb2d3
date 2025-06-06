@@ -468,24 +468,8 @@ function Dashboard({ username }) {
     setActiveRole("singer");
   }, [selectedLanguage]);
 
-  // Helper: filter artist list by search
-  function filterByRole(list, searchVal) {
-    if (!searchVal.trim()) return list;
-    return list
-      .map(artist => ({
-        ...artist,
-        songs: artist.songs.filter(song =>
-          song.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
-          artist.name.toLowerCase().includes(searchVal.trim().toLowerCase())
-        )
-      }))
-      .filter(artist => artist.songs.length > 0);
-  }
-
-  // Determine what to render
-  let content = null;
-
   // Song item UI (identify video, error and loading)
+  // PUBLIC_INTERFACE
   function SongItem({ artist, songTitle, role }) {
     const songKey = `${role}|${artist.name}|${songTitle}`;
     const video = songVideos[songKey];
@@ -560,6 +544,23 @@ function Dashboard({ username }) {
       </div>
     );
   }
+
+  // Helper: filter artist list by search
+  function filterByRole(list, searchVal) {
+    if (!searchVal.trim()) return list;
+    return list
+      .map(artist => ({
+        ...artist,
+        songs: artist.songs.filter(song =>
+          song.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
+          artist.name.toLowerCase().includes(searchVal.trim().toLowerCase())
+        )
+      }))
+      .filter(artist => artist.songs.length > 0);
+  }
+
+  // Determine what to render
+  let content = null;
 
   // Helper to render a full artist list, in a scrollable column, showing all required singers/music directors as a list
   function ArtistRoleColumn({ artists, roleKey, label, icon, color, searchVal, onSearchChange }) {
