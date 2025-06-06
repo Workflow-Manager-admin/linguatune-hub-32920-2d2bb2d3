@@ -203,6 +203,17 @@ function makeDemoArtists(langKey) {
   // No duplicate/numbered artists; deduplication is inherent in the above lists.
   // Each artist is unique, all songs per artist go together.
 
+  /**
+   * Helper: ensure only allowed songs are in the artist's list (for future-proofing data integrity).
+   * Checks a provided attribution list against a canonical allowed list for each composer.
+   * Usage: Pass canonicalSongMap and check on UI render or during seeds update.
+   */
+  function validateComposerSongs(artistName, songs, canonicalMap) {
+    // canonicalMap: { [composerName]: Set([...songs]) }
+    if (!canonicalMap || !canonicalMap[artistName]) return songs;
+    return songs.filter(song => canonicalMap[artistName].has(song));
+  }
+
   return {
     singers: SINGER_SEED[langKey] || [],
     musicDirectors: MUSIC_DIRECTOR_SEED[langKey] || []
