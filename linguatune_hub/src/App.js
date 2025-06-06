@@ -248,10 +248,196 @@ function AuthForm({ onAuthComplete }) {
 
 /**
  * PUBLIC_INTERFACE
- * Dashboard showing language names in a 3x2 row-wise grid, using theme colors.
+ * Dashboard showing language names in a 3x2 row-wise grid, using theme colors,
+ * OR (if a language is selected), show that language's search bar, curated artist/song list, Back button.
  */
-function Dashboard() {
-  // Only display the six languages in a 3x2 grid, row-wise.
+function Dashboard({ username }) {
+  // State to track which language is currently selected (if any)
+  const [selectedLanguage, setSelectedLanguage] = useState(null);
+
+  // Static or placeholder curated data for each language
+  const CURATED = {
+    en: [
+      { artist: "Taylor Swift", title: "Love Story" },
+      { artist: "Ed Sheeran", title: "Shape of You" },
+      { artist: "Adele", title: "Hello" },
+      { artist: "The Weeknd", title: "Blinding Lights" },
+      { artist: "Beyoncé", title: "Halo" }
+    ],
+    hi: [
+      { artist: "Arijit Singh", title: "Tum Hi Ho" },
+      { artist: "Shreya Ghoshal", title: "Teri Meri" },
+      { artist: "Sonu Nigam", title: "Kal Ho Naa Ho" },
+      { artist: "KK", title: "Zara Sa" },
+      { artist: "Atif Aslam", title: "Tu Jaane Na" }
+    ],
+    ta: [
+      { artist: "Anirudh Ravichander", title: "Why This Kolaveri Di" },
+      { artist: "Sid Sriram", title: "Ennodu Nee Irundhaal" },
+      { artist: "Shreya Ghoshal", title: "Munbe Vaa" },
+      { artist: "S.P. Balasubrahmanyam", title: "Nilaave Vaa" },
+      { artist: "Chinmayi", title: "Sara Sara" }
+    ],
+    te: [
+      { artist: "Devi Sri Prasad", title: "Seeti Maar" },
+      { artist: "Sid Sriram", title: "Inkem Inkem Inkem Kaavaale" },
+      { artist: "S. P. Balasubrahmanyam", title: "Priya Priya" },
+      { artist: "Chinmayi", title: "Yem Sandeham Ledu" },
+      { artist: "Shreya Ghoshal", title: "Hey Pillagada" }
+    ],
+    ml: [
+      { artist: "Sithara Krishnakumar", title: "Vaanam Thilathilakkanu" },
+      { artist: "Vijay Yesudas", title: "Malare" },
+      { artist: "K. S. Chithra", title: "Anuraga Vilochananayi" },
+      { artist: "Shreya Ghoshal", title: "Mizhiyoram" },
+      { artist: "Hesham Abdul Wahab", title: "Darshana" }
+    ],
+    kn: [
+      { artist: "Sonu Nigam", title: "Neene Neene" },
+      { artist: "Armaan Malik", title: "Ondu Malebillu" },
+      { artist: "Vijay Prakash", title: "Raajakumara" },
+      { artist: "Chandan Shetty", title: "3 Peg" },
+      { artist: "Shreya Ghoshal", title: "Ninnindale" }
+    ],
+  };
+
+  // If a language is selected, show the single-language detail view
+  if (selectedLanguage) {
+    const lang = LANGUAGES.find(l => l.key === selectedLanguage);
+    const [searchVal, setSearchVal] = useState("");
+    // Filter curated artist/song list by searchVal (case-insensitive)
+    const curatedList = CURATED[selectedLanguage] || [];
+    const filtered = searchVal.trim()
+      ? curatedList.filter(
+          s =>
+            s.artist.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
+            s.title.toLowerCase().includes(searchVal.trim().toLowerCase())
+        )
+      : curatedList;
+    return (
+      <main
+        style={{
+          minHeight: "calc(100vh - 85px)",
+          marginTop: 75,
+          background: COLORS.lightBg,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+        }}
+      >
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 22,
+            boxShadow: "0 4px 32px #f4e2eb2c",
+            maxWidth: 430,
+            width: "96vw",
+            margin: "35px auto 0",
+            padding: "37px 18px 22px 18px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "stretch"
+          }}
+        >
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 8,
+            marginBottom: 15
+          }}>
+            <h2 style={{
+              color: COLORS.primary,
+              fontWeight: 700,
+              fontSize: 26,
+              letterSpacing: "0.01em",
+              margin: 0,
+              flex: 1,
+              lineHeight: 1.18
+            }}>
+              {lang.label} Songs
+            </h2>
+            <button
+              className="btn"
+              style={{
+                padding: "8px 22px",
+                background: COLORS.primary,
+                color: COLORS.lightText,
+                border: `1px solid ${COLORS.accent}`,
+                fontWeight: 600,
+                borderRadius: 8,
+                minWidth: 0,
+                fontSize: 16
+              }}
+              onClick={() => setSelectedLanguage(null)}
+            >
+              ← Back
+            </button>
+          </div>
+          <input
+            type="text"
+            value={searchVal}
+            onChange={e => setSearchVal(e.target.value)}
+            placeholder={`Search by artist or song in ${lang.label}`}
+            className="input"
+            style={{
+              ...inputStyle,
+              background: COLORS.searchBar,
+              border: `1.4px solid ${COLORS.primary}`,
+              color: COLORS.accent,
+              marginBottom: 19,
+              fontSize: 16
+            }}
+            autoFocus
+          />
+          <div style={{ marginBottom: 14 }}>
+            <div
+              style={{
+                color: "#b694bc",
+                fontWeight: 500,
+                fontSize: 15,
+                marginBottom: 9
+              }}
+            >
+              Curated Artists & Songs
+            </div>
+            {filtered.length === 0 ? (
+              <div style={{ color: "#aaa", fontSize: 15, textAlign: "center" }}>
+                No songs found.
+              </div>
+            ) : (
+              filtered.map((s, i) => (
+                <div
+                  key={s.artist + s.title + i}
+                  style={{
+                    background: COLORS.songCard,
+                    borderRadius: 9,
+                    boxShadow: "0 2px 10px #fe86d812",
+                    marginBottom: 13,
+                    padding: "14px 14px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                    border: `1.6px solid ${COLORS.primary}25`
+                  }}
+                >
+                  <div style={{ fontWeight: 600, color: COLORS.accent, fontSize: 17 }}>
+                    {s.title}
+                  </div>
+                  <div style={{ color: "#a084a7", fontWeight: 500, fontSize: 14 }}>
+                    {s.artist}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Otherwise, show the grid of language tiles.
   return (
     <main
       style={{
@@ -266,7 +452,18 @@ function Dashboard() {
     >
       <div className="lang-grid">
         {LANGUAGES.map((lang) => (
-          <div className="lang-tile" key={lang.key}>
+          <div
+            className="lang-tile"
+            key={lang.key}
+            style={{ cursor: "pointer" }}
+            tabIndex={0}
+            role="button"
+            aria-label={`Show ${lang.label} music`}
+            onClick={() => setSelectedLanguage(lang.key)}
+            onKeyPress={e => {
+              if (e.key === "Enter" || e.key === " ") setSelectedLanguage(lang.key);
+            }}
+          >
             {lang.label}
           </div>
         ))}
