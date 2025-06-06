@@ -467,6 +467,50 @@ function Dashboard({ username }) {
         mark: <sup style={{ color: "#e98768" }} title="Female version">{'ⓘ'}</sup>
       };
     }
+    // Telugu singer-song attribution clarifications
+    //  – Pilla Raa: main singer is Anurag Kulkarni, feat. Sravana Bhargavi/Chinmayi for chorus in versions
+    if (artistName === "Anurag Kulkarni" && songTitle === "Pilla Raa") {
+      return {
+        tooltip: "Sung by Anurag Kulkarni; sometimes features additional chorus vocals by others.",
+        mark: <sup style={{ color: "#2bc67b" }} title="Solo by Anurag Kulkarni">{'♬'}</sup>
+      };
+    }
+    // – Adiga Adiga: main singer is Ramya Behara
+    if (artistName === "Ramya Behara" && songTitle === "Adiga Adiga") {
+      return {
+        tooltip: "Main version by Ramya Behara.",
+        mark: <sup style={{ color: "#2b95c4" }} title="Solo by Ramya Behara">{'♬'}</sup>
+      };
+    }
+    // – Chiranjeevi Chiranjeevi: Actually Sid Sriram (male version)
+    if (artistName === "Sid Sriram" && songTitle === "Chiranjeevi Chiranjeevi") {
+      return {
+        tooltip: "Sung by Sid Sriram. Female version performed separately.",
+        mark: <sup style={{ color: "#bb447c" }} title="Sid Sriram version">{'♂'}</sup>
+      };
+    }
+    // – Neeli Neeli Akasam: Sunitha is female lead
+    if (artistName === "Sunitha" && songTitle === "Neeli Neeli Akasam") {
+      return {
+        tooltip: "Sunitha's melodic female solo; folk version also exists.",
+        mark: <sup style={{ color: "#4891e7" }} title="Sunitha">{'♬'}</sup>
+      };
+    }
+    // – Mangli, “Ramuloo Ramulaa”: minor/chorus role, not lead
+    if (artistName === "Mangli" && songTitle === "Ramuloo Ramulaa") {
+      return {
+        tooltip: "Mangli contributed chorus/festival vocals; main vocals by Anurag Kulkarni.",
+        mark: <sup style={{ color: "#e17e10" }} title="Chorus/Festival Contribution">{'(min.)'}</sup>
+      };
+    }
+    // – Oo Antava: by Indravathi Chauhan, not Mangli
+    if (artistName === "Indravathi Chauhan" && songTitle === "Oo Antava") {
+      return {
+        tooltip: "Breakout solo song by Indravathi Chauhan.",
+        mark: <sup style={{ color: "#ff1096" }} title="Solo by Indravathi Chauhan">{'♬'}</sup>
+      };
+    }
+    // For completeness, if ever if collaborative: show “feat.” mark in the future.
     // Special: Kar Gayi Chull – clarify attribution for Amaal Mallik
     if (
       artistName === "Amaal Mallik" &&
