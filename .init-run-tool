@@ -1,0 +1,4 @@
+{
+    "command": "PORT=<port> BROWSER=none npm start",
+    "working_directory": "/home/kavia/workspace/code-generation/linguatune-hub-32920-2d2bb2d3/linguatune_hub"
+}

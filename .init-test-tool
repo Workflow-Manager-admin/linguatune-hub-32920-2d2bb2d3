@@ -1,0 +1,4 @@
+{
+    "command": "npm run test",
+    "working_directory": "/home/kavia/workspace/code-generation/linguatune-hub-32920-2d2bb2d3/linguatune_hub"
+}
