@@ -582,7 +582,7 @@ function SongCard({ song, canShowLyrics, onClick }) {
 }
 
 // PUBLIC_INTERFACE
-function LyricsPanel({ song, languageLabel, onClose }) {
+function LyricsPanel({ song, languageLabel, onClose, lyricsStatus, lyricsError }) {
   return (
     <div
       style={{
@@ -644,7 +644,14 @@ function LyricsPanel({ song, languageLabel, onClose }) {
           color: COLORS.accent
         }}
       >
-        {song.lyrics || "Lyrics not available."}
+        {lyricsStatus === "loading"
+          ? "Loading lyrics..."
+          : lyricsStatus === "error"
+          ? (lyricsError || "Lyrics not available.")
+          : song.lyrics
+          ? song.lyrics
+          : "Lyrics not available."
+        }
       </pre>
     </div>
   );
