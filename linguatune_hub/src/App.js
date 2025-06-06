@@ -145,7 +145,8 @@ function makeDemoArtists(langKey) {
     kn: [
       { name: "Sonu Nigam", songs: ["Neene Neene", "Swalpaagidantha", "Baa Baa", "Ee Sanje Yaakaagide", "Nenapirali"] },
       { name: "Vijay Prakash", songs: ["Raajakumara", "Kareyole", "Belageddu", "Kanasu", "Mungaru Male"] },
-      { name: "Armaan Malik", songs: ["Ondu Malebillu", "Ninna Snehadinda", "Jeeva Hoovagide", "Karagida Baaninalli", "Baare Baare"] },
+      // Only genuine Kannada songs sung by Armaan Malik
+      { name: "Armaan Malik", songs: ["Ondu Malebillu", "Ninna Snehadinda", "Jeeva Hoovagide"] },
       { name: "Chandan Shetty", songs: ["3 Peg", "Halagode", "Chocolate Girl", "Geetha", "Fire"] },
       { name: "Shreya Ghoshal", songs: ["Ninnindale", "Kannale Kannale", "Kanasugala Nanagu", "Edeya Doora", "Sundari"] },
       { name: "Rajesh Krishnan", songs: ["Preetse Preetse", "Janumada Gelathi", "Baaro Krishnayya", "Madhura Pisumaatige", "Baare Baare"] }
