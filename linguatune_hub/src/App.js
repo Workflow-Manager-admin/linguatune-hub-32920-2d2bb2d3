@@ -485,6 +485,99 @@ function Dashboard({ username }) {
   // Determine what to render
   let content = null;
 
+  // Helper to render a full artist list, in a scrollable column, showing all required singers/music directors as a list
+  function ArtistRoleColumn({ artists, roleKey, label, icon, color, searchVal, onSearchChange }) {
+    return (
+      <section
+        style={{
+          flex: "1 1 330px",
+          minWidth: 260,
+          maxWidth: 380,
+          background: "var(--light-gray)",
+          borderRadius: 18,
+          boxShadow: "0 3px 18px #cf7a9f11",
+          padding: "22px 12px 19px 12px",
+          border: "2.2px solid var(--mid-gray)",
+          margin: 6
+        }}
+      >
+        <header style={{
+          fontWeight: 900,
+          color: color,
+          fontSize: 23,
+          letterSpacing: ".03em",
+          marginBottom: 7,
+          display: "flex", alignItems: "center", gap: 10
+        }}>
+          <span style={{ fontSize: 25 }}>{icon}</span>
+          {label}
+        </header>
+        <input
+          type="text"
+          value={searchVal}
+          onChange={e => onSearchChange(e.target.value)}
+          placeholder={`Search ${label} or song`}
+          className="input"
+          style={{
+            ...inputStyle,
+            background: COLORS.searchBar,
+            border: `1.4px solid ${color}`,
+            color: COLORS.accent,
+            marginBottom: 17,
+            fontSize: 15
+          }}
+        />
+        <div style={{
+          maxHeight: "62vh",
+          overflow: "auto",
+          borderRadius: 14,
+          paddingRight: 5
+        }}>
+          {artists.length === 0 ? (
+            <div style={{
+              color: "#aaa", fontSize: 13, margin: "16px 0", textAlign: "center"
+            }}>
+              No {label.toLowerCase()} found.
+            </div>
+          ) : (
+            artists.map(artist =>
+              <div
+                key={artist.name}
+                style={{
+                  background: COLORS.songCard,
+                  borderRadius: 8,
+                  boxShadow: "0 3px 11px #e87a4119",
+                  border: `2px solid ${color}`,
+                  color: COLORS.accent,
+                  marginBottom: 10,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  padding: "8px 7px",
+                  transition: "all 0.10s"
+                }}
+                tabIndex={0}
+                aria-label={`Show songs for ${artist.name}`}
+              >
+                <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 2, color }}>{artist.name}</div>
+                <div style={{ marginTop: 6 }}>
+                  {(artist.songs && artist.songs.length > 0) ? (
+                    artist.songs.slice(0, 6).map(songTitle => (
+                      <SongItem artist={artist} songTitle={songTitle} role={roleKey} key={artist.name + "|" + songTitle} />
+                    ))
+                  ) : (
+                    <div style={{ color: "#888", fontSize: 13, fontWeight: 400 }}>
+                      No songs found for this artist.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+    );
+  }
+
   // If no language is selected, show the language grid
   if (!selectedLanguage) {
     content = (
@@ -541,23 +634,23 @@ function Dashboard({ username }) {
           style={{
             display: "flex",
             alignItems: "flex-start",
-            gap: 18,
-            marginBottom: 21,
+            gap: 9,
+            marginBottom: 9,
             borderBottom: "1px solid #e6d0ed",
-            paddingBottom: 12
+            paddingBottom: 4
           }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 700, color: COLORS.accent, fontSize: 17 }}>{songTitle}</div>
-            <div style={{ color: "#b7769b", fontSize: 13, fontWeight: 500, marginBottom: 0 }}>{artist.name}</div>
+            <div style={{ fontWeight: 700, color: COLORS.accent, fontSize: 14 }}>{songTitle}</div>
+            <div style={{ color: "#b7769b", fontSize: 11, fontWeight: 500, marginBottom: 0 }}>{artist.name}</div>
             {role === "singer" && canShowLyrics(selectedLanguage) && (
               <LyricsFetcher artist={artist.name} title={songTitle} />
             )}
           </div>
-          <div style={{ minWidth: 155, textAlign: "center" }}>
-            {loading && <div style={{ color: "#af78c2", fontSize: 13 }}>Loading video...</div>}
+          <div style={{ minWidth: 76, textAlign: "center" }}>
+            {loading && <div style={{ color: "#af78c2", fontSize: 11 }}>Loading…</div>}
             {!loading && video && video.thumbnail && (
               <div
-                style={{ cursor: "pointer", borderRadius: 9, overflow: "hidden" }}
+                style={{ cursor: "pointer", borderRadius: 6, overflow: "hidden" }}
                 onClick={() => setOpenPlayers(prev => ({ ...prev, [songKey]: !prev[songKey] }))}
                 tabIndex={0}
                 role="button"
@@ -567,33 +660,33 @@ function Dashboard({ username }) {
                   src={video.thumbnail}
                   alt={songTitle + " thumbnail"}
                   style={{
-                    width: 133, borderRadius: 8,
-                    boxShadow: "0 3px 14px #df86e92f",
+                    width: 63, borderRadius: 6,
+                    boxShadow: "0 2px 7px #df86e92b",
                     marginBottom: 4
                   }}
                 />
                 <div style={{
-                  fontSize: 12,
+                  fontSize: 9,
                   color: COLORS.primary,
                   background: "rgba(254,134,216,0.11)",
-                  borderRadius: 7,
+                  borderRadius: 5,
                   marginTop: 2
                 }}>
-                  {openPlayers[songKey] ? "Hide Video" : "Play Video"}
+                  {openPlayers[songKey] ? "Hide" : "Play"}
                 </div>
               </div>
             )}
             {!loading && !video && (
-              <div style={{ color: "#e95271", fontSize: 12, marginTop: 7 }}>
-                {error || "No video found"}
+              <div style={{ color: "#e95271", fontSize: 10, marginTop: 2 }}>
+                {error || "No video"}
               </div>
             )}
             {openPlayers[songKey] && video && video.videoId && (
               <iframe
                 title={songTitle + " Video"}
                 width="97%"
-                height="98"
-                style={{ borderRadius: 8, marginTop: 8, boxShadow: "0 6px 12px #eaabfd11" }}
+                height="56"
+                style={{ borderRadius: 6, marginTop: 3, boxShadow: "0 4px 8px #eaabfd12" }}
                 src={`https://www.youtube.com/embed/${video.videoId}`}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -605,295 +698,27 @@ function Dashboard({ username }) {
       );
     }
 
+    // Choose how many to show, and enable columns appropriately
+    const singersList = singers.slice(0, selectedLanguage === "en" ? 15 : 10);
+    const directorsList = isIndianLang ? musicDirectors.slice(0, 6) : [];
+
+    // Apply search
+    const filteredSingers = filterByRole(singersList, searchVals.singer);
+    const filteredDirectors = filterByRole(directorsList, searchVals.director);
+
     // Responsive UI variables
     const columnsContainerStyle = {
       display: "flex",
-      gap: isIndianLang ? 24 : 48,
+      gap: 24,
       width: "100%",
       alignItems: "flex-start",
       flexWrap: "wrap",
       justifyContent: "center"
     };
 
-    // Indian language: two-columns with tab-switch (toggle)
-    if (isIndianLang) {
-      const roleInfo = [
-        {
-          key: "singer",
-          label: "Singers",
-          icon: "🎤",
-          accent: COLORS.primary,
-          list: singers,
-          searchVal: searchVals.singer
-        },
-        {
-          key: "director",
-          label: "Music Directors",
-          icon: "🎼",
-          accent: "#af78c2",
-          list: musicDirectors,
-          searchVal: searchVals.director
-        }
-      ];
-
-      const { list, searchVal, label, icon, accent, key: roleKey } = roleInfo.find(i => i.key === activeRole);
-      const filtered = filterByRole(list, searchVal);
-      const selectedArtist = filtered.length > 0 ? filtered[0] : null;
-      // Style helpers
-      const columnNavBtn = (btnRole, label, icon) => ({
-        fontWeight: 700,
-        border: "none",
-        background: activeRole === btnRole ? COLORS.primary : "#f7e8f5",
-        color: activeRole === btnRole ? COLORS.accent : COLORS.primary,
-        padding: "10px 33px",
-        fontSize: 18,
-        borderRadius: 13,
-        marginRight: 9,
-        marginBottom: 0,
-        cursor: "pointer",
-        boxShadow: activeRole === btnRole ? "0 3px 18px #e87a4177" : "none",
-        transition: "all 0.19s",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-        letterSpacing: ".01em",
-        outline: "none"
-      });
-      const roleCardStyle = {
-        flex: "1 1 440px",
-        minWidth: 330,
-        maxWidth: 650,
-        background: "var(--light-gray)",
-        borderRadius: 20,
-        boxShadow: "0 3px 21px #cf7a9f12",
-        padding: "24px 19px 20px 19px",
-        border: "2.2px solid var(--mid-gray)"
-      };
-      const roleHeaderStyle = (role) => ({
-        fontWeight: 900,
-        color: role === "singer" ? COLORS.primary : "#af78c2",
-        fontSize: 26,
-        letterSpacing: ".03em",
-        marginBottom: 7,
-        display: "flex", alignItems: "center", gap: 10
-      });
-      content = (
-        <main
-          style={{
-            minHeight: "calc(100vh - 85px)",
-            marginTop: 75,
-            background: COLORS.lightBg,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center"
-          }}>
-          <div style={{
-            background: "#fff",
-            borderRadius: 30,
-            boxShadow: "0 4px 32px #f4e2eb24",
-            width: "98vw",
-            maxWidth: 1600,
-            margin: "36px auto 0",
-            padding: "26px 18px 34px 17px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "stretch"
-          }}>
-            {/* Header */}
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 8,
-              marginBottom: 9
-            }}>
-              <h2 style={{
-                color: COLORS.primary,
-                fontWeight: 800,
-                fontSize: 29,
-                letterSpacing: ".03em",
-                margin: 0,
-                flex: 1,
-                lineHeight: 1.18
-              }}>
-                {langObj ? langObj.label : ""} — <span style={{ color: COLORS.accent }}>Music Dashboard</span>
-              </h2>
-              <button
-                className="btn"
-                style={{
-                  padding: "8px 26px",
-                  background: COLORS.primary,
-                  color: COLORS.lightText,
-                  border: `1px solid ${COLORS.accent}`,
-                  fontWeight: 600,
-                  borderRadius: 8,
-                  minWidth: 0,
-                  fontSize: 15
-                }}
-                onClick={() => setSelectedLanguage(null)}
-              >
-                ← Back
-              </button>
-            </div>
-            {/* Toggle Tabs */}
-            <div style={{
-              width: "100%",
-              display: "flex",
-              justifyContent: "center",
-              gap: 0,
-              marginBottom: 32,
-              paddingTop: 13
-            }}>
-              <button
-                type="button"
-                aria-label="Show singers"
-                style={columnNavBtn("singer", "Singers", "🎤")}
-                className="tab-btn"
-                onClick={() => setActiveRole("singer")}
-              >
-                <span role="img" aria-label="Singers">{roleInfo[0].icon}</span> Singers
-              </button>
-              <button
-                type="button"
-                aria-label="Show music directors"
-                style={columnNavBtn("director", "Music Directors", "🎼")}
-                className="tab-btn"
-                onClick={() => setActiveRole("director")}
-              >
-                <span role="img" aria-label="Music Directors">{roleInfo[1].icon}</span> Music Directors
-              </button>
-            </div>
-            {/* Content Columns: only show the chosen one */}
-            <div style={columnsContainerStyle} className="indian-lang-columns">
-              <section style={roleCardStyle}>
-                {/* Header */}
-                <header style={roleHeaderStyle(activeRole)}>
-                  <span style={{ fontSize: 28 }}>{icon}</span>
-                  {selectedArtist ? selectedArtist.name : `No ${label.slice(0, -1)} found`}
-                </header>
-                {/* Search */}
-                <input
-                  type="text"
-                  value={searchVal}
-                  onChange={e =>
-                    setSearchVals(vals => ({
-                      ...vals,
-                      [activeRole]: e.target.value
-                    }))
-                  }
-                  placeholder={`Search ${label} or song in ${langObj ? langObj.label : ""}`}
-                  className="input"
-                  style={{
-                    ...inputStyle,
-                    background: COLORS.searchBar,
-                    border: `1.4px solid ${accent}`,
-                    color: COLORS.accent,
-                    marginBottom: 19,
-                    fontSize: 16
-                  }}
-                />
-                <div style={{
-                  maxHeight: "62vh",
-                  overflow: "auto",
-                  borderRadius: 14,
-                  paddingRight: 5
-                }}>
-                  {!selectedArtist ? (
-                    <div style={{
-                      color: "#aaa", fontSize: 16, margin: "20px 0", textAlign: "center"
-                    }}>
-                      No {label.slice(0, -1).toLowerCase()} found.
-                    </div>
-                  ) : (
-                    <div
-                      key={selectedArtist.name}
-                      style={{
-                        background: COLORS.songCard,
-                        borderRadius: 10,
-                        boxShadow: "0 3px 15px #e87a4122",
-                        border: `2px solid ${accent}`,
-                        color: COLORS.accent,
-                        marginBottom: 11,
-                        fontWeight: 700,
-                        fontSize: 17,
-                        padding: "13px 9px 11px 11px",
-                        transition: "all 0.12s"
-                      }}
-                      tabIndex={0}
-                      aria-label={`Show songs for ${selectedArtist.name}`}
-                    >
-                      {/* Show all songs for this artist */}
-                      <div style={{ marginTop: 11 }}>
-                        {(selectedArtist.songs && selectedArtist.songs.length > 0) ? (
-                          selectedArtist.songs.slice(0, 50).map(songTitle => (
-                            <SongItem artist={selectedArtist} songTitle={songTitle} role={activeRole} key={selectedArtist.name + "|" + songTitle} />
-                          ))
-                        ) : (
-                          <div style={{ color: "#888", fontSize: 15, fontWeight: 400 }}>
-                            No songs found for this artist.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </section>
-            </div>
-          </div>
-          {/* Responsive tweaks for mobile */}
-          <style>
-            {`
-              @media (max-width: 900px) {
-                .indian-lang-columns {
-                  flex-direction: column !important;
-                  gap: 15px !important;
-                }
-              }
-              @media (max-width: 700px) {
-                .indian-lang-columns section {
-                  max-width: 99vw !important;
-                  padding-left: 2vw !important;
-                  padding-right: 2vw !important;
-                  margin-bottom: 8vw !important;
-                }
-                .tab-btn {
-                  padding: 8px 18vw !important;
-                  font-size: 16px !important;
-                  flex:1 !important;
-                  text-align:center !important;
-                }
-              }
-            `}
-          </style>
-        </main>
-      );
-    } else {
-      // Non-Indian language (English) fallback: single column with singers only
-      const role = "singer";
-      const artistList = singers;
-      const filtered = filterByRole(artistList, searchVals[role]);
-      const selectedArtist = filtered.length > 0 ? filtered[0] : null;
-      const columnCardStyle = {
-        flex: "1 1 450px",
-        minWidth: 320,
-        maxWidth: 570,
-        background: "var(--light-gray)",
-        borderRadius: 22,
-        boxShadow: "0 2px 21px #e87a4117",
-        padding: "32px 24px 18px 24px",
-        marginBottom: 16,
-        border: "2.2px solid var(--mid-gray)"
-      };
-      const roleHeaderStyle = (role) => ({
-        fontWeight: 900,
-        color: ROLES.find(r => r.key === role).accent,
-        fontSize: 25,
-        letterSpacing: ".03em",
-        marginBottom: 6,
-        display: "flex", alignItems: "center", gap: 12
-      });
-      content = (
-        <main style={{
+    content = (
+      <main
+        style={{
           minHeight: "calc(100vh - 85px)",
           marginTop: 75,
           background: COLORS.lightBg,
@@ -901,143 +726,101 @@ function Dashboard({ username }) {
           flexDirection: "column",
           alignItems: "center"
         }}>
+        <div style={{
+          background: "#fff",
+          borderRadius: 30,
+          boxShadow: "0 4px 32px #f4e2eb24",
+          width: "98vw",
+          maxWidth: 1600,
+          margin: "36px auto 0",
+          padding: "26px 13px 34px 13px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "stretch"
+        }}>
+          {/* Header */}
           <div style={{
-            background: "#fff",
-            borderRadius: 30,
-            boxShadow: "0 4px 32px #f4e2eb24",
-            width: "98vw",
-            maxWidth: 1600,
-            margin: "36px auto 0",
-            padding: "26px 15px 34px 15px",
             display: "flex",
-            flexDirection: "column",
-            alignItems: "stretch"
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 8,
+            marginBottom: 9
           }}>
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 8,
-              marginBottom: 23
+            <h2 style={{
+              color: COLORS.primary,
+              fontWeight: 800,
+              fontSize: 29,
+              letterSpacing: ".03em",
+              margin: 0,
+              flex: 1,
+              lineHeight: 1.18
             }}>
-              <h2 style={{
-                color: COLORS.primary,
-                fontWeight: 800,
-                fontSize: 29,
-                letterSpacing: ".03em",
-                margin: 0,
-                flex: 1,
-                lineHeight: 1.18
-              }}>
-                {langObj ? langObj.label : ""} — <span style={{ color: COLORS.accent }}>Music Dashboard</span>
-              </h2>
-              <button
-                className="btn"
-                style={{
-                  padding: "8px 26px",
-                  background: COLORS.primary,
-                  color: COLORS.lightText,
-                  border: `1px solid ${COLORS.accent}`,
-                  fontWeight: 600,
-                  borderRadius: 8,
-                  minWidth: 0,
-                  fontSize: 15
-                }}
-                onClick={() => setSelectedLanguage(null)}
-              >
-                ← Back
-              </button>
-            </div>
-            <div style={columnsContainerStyle}>
-              <section style={columnCardStyle}>
-                <header style={roleHeaderStyle(role)}>
-                  <span style={{ fontSize: 28 }}>🎤</span>
-                  {selectedArtist ? selectedArtist.name : `No Singer found`}
-                </header>
-                <input
-                  type="text"
-                  value={searchVals[role]}
-                  onChange={e => setSearchVals(vals => ({ ...vals, [role]: e.target.value }))}
-                  placeholder={`Search Singers or song in ${langObj ? langObj.label : ""}`}
-                  className="input"
-                  style={{
-                    ...inputStyle,
-                    background: COLORS.searchBar,
-                    border: `1.4px solid ${COLORS.primary}`,
-                    color: COLORS.accent,
-                    marginBottom: 19,
-                    fontSize: 16
-                  }}
-                />
-                <div style={{
-                  maxHeight: "62vh",
-                  overflow: "auto",
-                  borderRadius: 14,
-                  paddingRight: 5
-                }}>
-                  {!selectedArtist ? (
-                    <div style={{
-                      color: "#aaa", fontSize: 16, margin: "20px 0", textAlign: "center"
-                    }}>
-                      No singer found.
-                    </div>
-                  ) : (
-                    <div
-                      key={selectedArtist.name}
-                      style={{
-                        background: COLORS.songCard,
-                        borderRadius: 10,
-                        boxShadow: "0 3px 15px #e87a4122",
-                        border: `2px solid ${COLORS.primary}`,
-                        color: COLORS.accent,
-                        marginBottom: 11,
-                        fontWeight: 700,
-                        fontSize: 17,
-                        padding: "13px 9px 11px 11px",
-                        transition: "all 0.12s"
-                      }}
-                      tabIndex={0}
-                      aria-label={`Show songs for ${selectedArtist.name}`}
-                    >
-                      {/* Show all songs for this artist */}
-                      <div style={{ marginTop: 11 }}>
-                        {(selectedArtist.songs && selectedArtist.songs.length > 0) ? (
-                          selectedArtist.songs.slice(0, 50).map(songTitle => (
-                            <SongItem artist={selectedArtist} songTitle={songTitle} role={role} key={selectedArtist.name + "|" + songTitle} />
-                          ))
-                        ) : (
-                          <div style={{ color: "#888", fontSize: 15, fontWeight: 400 }}>
-                            No songs found for this artist.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </section>
-            </div>
-            <style>
-              {`
-                @media (max-width: 1020px) {
-                  .dashboard-columns {
-                    flex-direction: column !important;
-                    gap: 15px !important;
-                  }
-                }
-                @media (max-width: 780px) {
-                  .dashboard-columns section {
-                    max-width: 99vw !important;
-                    padding-left: 2vw !important;
-                    padding-right: 2vw !important;
-                    margin-bottom: 8vw !important;
-                  }
-                }
-              `}
-            </style>
+              {langObj ? langObj.label : ""} — <span style={{ color: COLORS.accent }}>Music Dashboard</span>
+            </h2>
+            <button
+              className="btn"
+              style={{
+                padding: "8px 26px",
+                background: COLORS.primary,
+                color: COLORS.lightText,
+                border: `1px solid ${COLORS.accent}`,
+                fontWeight: 600,
+                borderRadius: 8,
+                minWidth: 0,
+                fontSize: 15
+              }}
+              onClick={() => setSelectedLanguage(null)}
+            >
+              ← Back
+            </button>
           </div>
-        </main>
-      );
-    }
+          {/* Columns container */}
+          <div style={columnsContainerStyle} className="dashboard-columns">
+            {/* Always show singers column */}
+            <ArtistRoleColumn
+              artists={filteredSingers}
+              roleKey="singer"
+              label="Singers"
+              icon="🎤"
+              color={COLORS.primary}
+              searchVal={searchVals.singer}
+              onSearchChange={v => setSearchVals(vals => ({ ...vals, singer: v }))}
+            />
+            {/* Only show music directors column for Indian languages */}
+            {isIndianLang &&
+              <ArtistRoleColumn
+                artists={filteredDirectors}
+                roleKey="director"
+                label="Music Directors"
+                icon="🎼"
+                color="#af78c2"
+                searchVal={searchVals.director}
+                onSearchChange={v => setSearchVals(vals => ({ ...vals, director: v }))}
+              />
+            }
+          </div>
+          {/* Responsive tweaks for mobile */}
+          <style>
+            {`
+              @media (max-width: 900px) {
+                .dashboard-columns {
+                  flex-direction: column !important;
+                  gap: 11px !important;
+                }
+              }
+              @media (max-width: 700px) {
+                .dashboard-columns section {
+                  max-width: 99vw !important;
+                  padding-left: 2vw !important;
+                  padding-right: 2vw !important;
+                  margin-bottom: 8vw !important;
+                }
+              }
+            `}
+          </style>
+        </div>
+      </main>
+    );
   }
 
   // Always return content (single return statement for hooks compliance)
