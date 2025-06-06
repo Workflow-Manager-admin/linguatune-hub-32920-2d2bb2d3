@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
+import { fetchYouTubeVideos } from "./youtubeApi";
 
 // --- Constants for Theme and Language Columns ---
 const COLORS = {
@@ -14,70 +15,13 @@ const COLORS = {
 };
 
 const LANGUAGES = [
-  { label: "English", key: "en" },
-  { label: "Tamil", key: "ta" },
-  { label: "Hindi", key: "hi" },
-  { label: "Telugu", key: "te" },
-  { label: "Malayalam", key: "ml" },
-  { label: "Kannada", key: "kn" }
+  { label: "English", key: "en", query: "english pop music" },
+  { label: "Tamil", key: "ta", query: "tamil songs" },
+  { label: "Hindi", key: "hi", query: "hindi bollywood music" },
+  { label: "Telugu", key: "te", query: "telugu songs" },
+  { label: "Malayalam", key: "ml", query: "malayalam songs" },
+  { label: "Kannada", key: "kn", query: "kannada songs" }
 ];
-
-const CURATED_SONGS = {
-  en: [
-    {
-      title: "Shape of You",
-      artist: "Ed Sheeran",
-      lyrics: `The club isn't the best place to find a lover...`,
-    },
-    {
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      lyrics: `Yeah, I've been tryna call...`
-    },
-    {
-      title: "Someone Like You",
-      artist: "Adele",
-      lyrics: `I heard that you're settled down...`
-    }
-  ],
-  ta: [
-    { title: "Why This Kolaveri Di", artist: "Dhanush" },
-    { title: "Rowdy Baby", artist: "Dhanush, Dhee" },
-    { title: "Vaathi Coming", artist: "Anirudh Ravichander" }
-  ],
-  hi: [
-    {
-      title: "Tum Hi Ho",
-      artist: "Arijit Singh",
-      lyrics: `Kyunki tum hi ho...`
-    },
-    {
-      title: "Channa Mereya",
-      artist: "Arijit Singh",
-      lyrics: `Accha chalta hoon...`
-    },
-    {
-      title: "Makhna",
-      artist: "Tanishk Bagchi",
-      lyrics: `Udein jab-jab zulfein teri...`
-    }
-  ],
-  te: [
-    { title: "Butta Bomma", artist: "Armaan Malik" },
-    { title: "Seeti Maar", artist: "Jaspreet Jasz, Rita" },
-    { title: "Samajavaragamana", artist: "Sid Sriram" }
-  ],
-  ml: [
-    { title: "Jimikki Kammal", artist: "Vineeth Sreenivasan, Renjith Unni" },
-    { title: "Entammede Jimikki Kammal", artist: "Sheril G Kadavan" },
-    { title: "Malare", artist: "Vijay Yesudas" }
-  ],
-  kn: [
-    { title: "Karabuu", artist: "Chandan Shetty" },
-    { title: "Tagaru Banthu Tagaru", artist: "Dr. Rajkumar" },
-    { title: "Belageddu", artist: "Vijay Prakash" }
-  ]
-};
 
 // Mock lyrics for English and Hindi above; others do not get lyrics tab.
 const canShowLyrics = (langKey) => langKey === "en" || langKey === "hi";
