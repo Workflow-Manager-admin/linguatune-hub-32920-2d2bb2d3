@@ -10,10 +10,13 @@ export const YOUTUBE_API_KEY = "AIzaSyDiFCOiIRftlin1m8BTbp4jMvNnNy7tPyc"; // Pro
  * @param {string} query The search query (song name & artist or language)
  * @param {object} opts { maxResults: number, regionCode: string }
  * @returns {Promise<Array>} Array of YouTube video info objects
+ *
+ * Enhanced with debug logging and stricter checks for API key and response integrity.
  */
 export async function fetchYouTubeVideos(query, opts = {}) {
   // Always use the exported API key variable for consistency.
   if (!YOUTUBE_API_KEY) {
+    console.error("[YouTubeAPI] No API key set.");
     throw new Error("YouTube API key is not set.");
   }
   const maxResults = opts.maxResults || 8;
@@ -30,12 +33,13 @@ export async function fetchYouTubeVideos(query, opts = {}) {
   });
 
   const url = `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
-  let response;
+  let response, debugInfo = {};
   try {
     response = await fetch(url);
+    debugInfo.status = response.status;
   } catch (err) {
-    // Network error or similar
-    return [];
+    console.error(`[YouTubeAPI] Network error: ${err && err.message}`);
+    throw new Error("Failed to connect to YouTube API: " + (err && err.message));
   }
   if (!response.ok) {
     // Detect API quota errors (YouTube sends 403 w/ details in .error.errors[0].reason) or generic errors
@@ -44,26 +48,52 @@ export async function fetchYouTubeVideos(query, opts = {}) {
       const errJson = await response.json();
       if (errJson.error && errJson.error.errors && errJson.error.errors[0] && errJson.error.errors[0].reason) {
         errMsg = `YouTube API error: ${errJson.error.errors[0].reason}`;
+        console.error(`[YouTubeAPI] API error response:`, errJson.error);
+        debugInfo.errorReason = errJson.error.errors[0].reason;
       }
-    } catch {}
-    // Graceful fallback: treat as "no results"
-    return [];
+    } catch (errParse) {
+      console.error("[YouTubeAPI] Failed to parse error response from API.", errParse);
+    }
+    console.error(`[YouTubeAPI] Response not ok (${response.status}): ${errMsg}`);
+    throw new Error(errMsg);
   }
   let data;
   try {
     data = await response.json();
-  } catch {
-    return [];
+  } catch (err) {
+    console.error("[YouTubeAPI] Could not parse JSON response.", err);
+    throw new Error("YouTube API: invalid response format.");
   }
   if (!data || !Array.isArray(data.items) || data.items.length === 0) {
+    console.warn("[YouTubeAPI] No search results for query:", query);
     return [];
   }
   // Map YouTube response to the app's song item shape
-  return data.items.map((item) => ({
-    videoId: item.id.videoId,
-    title: item.snippet.title,
-    artist: item.snippet.channelTitle,
-    thumbnail: item.snippet.thumbnails && item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : "",
-    lyrics: null
-  }));
+  // Also provide logging for each videoId resolved (for debug)
+  const videoList = data.items
+    .filter((item) => item.id && item.id.videoId && item.snippet)
+    .map((item) => {
+      const id = item.id.videoId;
+      const title = item.snippet.title;
+      const channel = item.snippet.channelTitle;
+      const thumb = item.snippet.thumbnails && item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : "";
+      if (!id) {
+        console.warn(`[YouTubeAPI] Item missing videoId for query:`, query, item);
+      }
+      return {
+        videoId: id,
+        title: title,
+        artist: channel,
+        thumbnail: thumb,
+        lyrics: null
+      };
+    });
+  if (!videoList.length) {
+    console.warn("[YouTubeAPI] All API items missing videoId or snippet for query:", query, data);
+  } else {
+    console.debug(
+      `[YouTubeAPI] Query "${query}" got videoId(s): ${videoList.map(x => x.videoId).join(", ")}`
+    );
+  }
+  return videoList;
 }
