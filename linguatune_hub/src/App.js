@@ -552,6 +552,8 @@ function Dashboard({ username }) {
         const key = `${roleSelection === "singers" ? "singer" : "director"}|${artist.name}|${songTitle}`;
         if (songVideos[key] !== undefined) return;
         setLoadingMap(lm => ({ ...lm, [key]: true }));
+        // DEBUG: Log query parameters
+        console.debug(`[SongVideoFetch] Fetching for:`, {artist: artist.name, songTitle});
         fetchYouTubeVideos(`${artist.name} ${songTitle}`, { maxResults: 1 })
           .then(videos => {
             // Detect and surface errors/quota/fallbacks
@@ -559,8 +561,17 @@ function Dashboard({ username }) {
             let videoObj = null;
             if (!Array.isArray(videos) || videos.length === 0) {
               errMsg = "No video found.";
+              console.warn(`[SongVideoFetch] No video for "${artist.name} ${songTitle}"`);
             } else {
               videoObj = videos[0];
+              // DEBUG: Print what we picked
+              console.debug(
+                `[SongVideoFetch] Success for "${artist.name} - ${songTitle}": id=${videoObj && videoObj.videoId}, title=${videoObj && videoObj.title}`
+              );
+              // For deep debug, log full object if something seems off
+              if (!videoObj.videoId || !videoObj.title) {
+                console.warn(`[SongVideoFetch] (WARN) Odd videoObj for "${artist.name}|${songTitle}":`, videoObj, videos);
+              }
             }
             setSongVideos(prev => ({ ...prev, [key]: videoObj }));
             setErrorMap(prev => ({ ...prev, [key]: errMsg }));
@@ -568,10 +579,11 @@ function Dashboard({ username }) {
           })
           .catch((e) => {
             // Try to give a friendly/youtube API quota hint if detectable.
+            console.error(`[SongVideoFetch] Error: Unable to load for "${artist.name} - ${songTitle}":`, e && e.message);
             setSongVideos(prev => ({ ...prev, [key]: null }));
             setErrorMap(prev => ({ ...prev, [key]: (e && e.message && e.message.indexOf("quota") >= 0)
               ? "YouTube API limit reached. Please try later."
-              : "Could not load video."
+              : (e && e.message ? e.message : "Could not load video.")
             }));
             setLoadingMap(prev => ({ ...prev, [key]: false }));
           });
