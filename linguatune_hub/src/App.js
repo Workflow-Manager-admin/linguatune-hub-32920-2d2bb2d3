@@ -462,6 +462,16 @@ function Dashboard({ username }) {
         mark: <sup style={{ color: "#e98768" }} title="Female version">{'ⓘ'}</sup>
       };
     }
+    // Special: Kar Gayi Chull – clarify attribution for Amaal Mallik
+    if (
+      artistName === "Amaal Mallik" &&
+      songTitle === "Kar Gayi Chull"
+    ) {
+      return {
+        tooltip: "Original song by Badshah–Fazilpuria; Bollywood film adaptation/arrangement by Amaal Mallik.",
+        mark: <sup style={{ color: "#e27187" }} title="Original song by Badshah–Fazilpuria; Bollywood adaption by Amaal Mallik">*</sup>
+      };
+    }
     // Neha Kakkar: footnote for remakes (all songs in demo list for her)
     if (
       artistName === "Neha Kakkar" &&
