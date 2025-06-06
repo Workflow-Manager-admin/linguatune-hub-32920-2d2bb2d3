@@ -385,98 +385,464 @@ function AuthForm({ onAuthComplete }) {
 
 /* PUBLIC_INTERFACE - Refactored Dashboard for dual-column (singer/music director) artist display */
 function Dashboard({ username }) {
+  // App local state
   const [selectedLanguage, setSelectedLanguage] = useState(null);
+  const [roleSelection, setRoleSelection] = useState(null); // "singers" or "music-directors"
+  const [artistGridPage, setArtistGridPage] = useState(0);
+
+  // Video state management (for demo)
   const [songVideos, setSongVideos] = useState({});
   const [loadingMap, setLoadingMap] = useState({});
   const [errorMap, setErrorMap] = useState({});
   const [openPlayers, setOpenPlayers] = useState({});
-  const [searchVals, setSearchVals] = useState({ singer: "", director: "" });
-  const [expandedArtist, setExpandedArtist] = useState({ singer: null, director: null });
 
-  const [activeRole, setActiveRole] = useState("singer");
-  const [artistGridPage, setArtistGridPage] = useState(0);
-
-  const ROLES = [
-    { key: "singer", label: "Singers", icon: "🎤", accent: COLORS.primary },
-    { key: "director", label: "Music Directors", icon: "🎼", accent: "#af78c2" }
-  ];
-
-  // Helper for handling navigation between grid pages (for 3x3 layouts)
-  function handleGridPageChange(direction, maxPages) {
-    setArtistGridPage((old) => {
-      if (direction === "next" && old < maxPages - 1) return old + 1;
-      if (direction === "prev" && old > 0) return old - 1;
-      return old;
-    });
-  }
-
-  // PUBLIC_INTERFACE
+  // Helper: get demo artists by language for each role (returns {singers, musicDirectors})
   function getArtists(langKey) {
     if (!langKey) return { singers: [], musicDirectors: [] };
-    // For Indian languages: return first 10 singers, first 6 music directors
-    // For English: return first 15 singers, no music directors
-    const { singers, musicDirectors } = makeDemoArtists(langKey);
-    if (langKey === 'en') {
-      return {
-        singers: singers.slice(0, 15),
-        musicDirectors: [],
-      };
-    }
-    // Indian lang: Tamil, Hindi, Telugu, Malayalam, Kannada
-    return {
-      singers: singers.slice(0, 10),
-      musicDirectors: musicDirectors.slice(0, 6)
-    };
+    return makeDemoArtists(langKey);
   }
 
-  // Fetch videos for all artists and their songs for selected language (but only if changed)
-  useEffect(() => {
-    let ignore = false;
-    if (!selectedLanguage) return;
-    const { singers, musicDirectors } = getArtists(selectedLanguage);
-    const allArtists = [
-      ...singers.map(a => ({ ...a, role: "singer" })),
-      ...musicDirectors.map(a => ({ ...a, role: "director" }))
-    ];
-    async function fetchAll() {
-      let vids = {}, loads = {}, errs = {};
-      for (const artistObj of allArtists) {
-        for (const songTitle of artistObj.songs) {
-          const key = `${artistObj.role}|${artistObj.name}|${songTitle}`;
-          loads[key] = true;
-          try {
-            const videos = await fetchYouTubeVideos(`${artistObj.name} ${songTitle}`, { maxResults: 1 });
-            vids[key] = Array.isArray(videos) && videos[0] ? videos[0] : null;
-            errs[key] = (Array.isArray(videos) && videos.length > 0) ? "" : "No video found";
-          } catch {
-            vids[key] = null;
-            errs[key] = "Video error";
-          }
-          loads[key] = false;
-          if (ignore) break;
-          setSongVideos(prev => ({ ...prev, [key]: vids[key] }));
-          setLoadingMap(prev => ({ ...prev, [key]: false }));
-          setErrorMap(prev => ({ ...prev, [key]: errs[key] }));
-        }
-      }
-      if (!ignore) {
-        setSongVideos(vids);
-        setLoadingMap(loads);
-        setErrorMap(errs);
-      }
-    }
-    setSongVideos({});
-    setLoadingMap({});
-    setErrorMap({});
-    fetchAll();
-    return () => { ignore = true; };
-  }, [selectedLanguage]);
+  // States for search (if necessary for paging/scroll)
+  const [searchVal, setSearchVal] = useState("");
 
+  // When language or mode changes, reset page and search state
   useEffect(() => {
-    setSearchVals({ singer: "", director: "" });
-    setExpandedArtist({ singer: null, director: null });
-    setActiveRole("singer");
-  }, [selectedLanguage]);
+    setArtistGridPage(0);
+    setSearchVal("");
+  }, [selectedLanguage, roleSelection]);
+
+  // Fetch YT videos for the 9 visible artists on current page (per role)
+  useEffect(() => {
+    if (!selectedLanguage || !roleSelection) return;
+    const { singers, musicDirectors } = getArtists(selectedLanguage);
+    const targetList = roleSelection === "singers" ? singers : musicDirectors;
+    const gridArtists = targetList.filter(a =>
+      !searchVal.trim() ||
+      a.name.toLowerCase().includes(searchVal.trim().toLowerCase())
+    ).slice(artistGridPage * 9, artistGridPage * 9 + 9);
+
+    // For each artist+song, fetch (if not present)
+    gridArtists.forEach(artist => {
+      let songs = artist.songs;
+      if (songs.length < 5) songs = Array(5).fill(0).map((_, i) => songs[i % artist.songs.length]);
+      songs.slice(0, 5).forEach(songTitle => {
+        const key = `${roleSelection === "singers" ? "singer" : "director"}|${artist.name}|${songTitle}`;
+        if (songVideos[key] !== undefined) return;
+        setLoadingMap(lm => ({ ...lm, [key]: true }));
+        fetchYouTubeVideos(`${artist.name} ${songTitle}`, { maxResults: 1 })
+          .then(videos => {
+            setSongVideos(prev => ({ ...prev, [key]: (Array.isArray(videos) && videos[0]) ? videos[0] : null }));
+            setErrorMap(prev => ({ ...prev, [key]: (Array.isArray(videos) && videos[0]) ? "" : "No result" }));
+            setLoadingMap(prev => ({ ...prev, [key]: false }));
+          })
+          .catch(() => {
+            setSongVideos(prev => ({ ...prev, [key]: null }));
+            setErrorMap(prev => ({ ...prev, [key]: "Error" }));
+            setLoadingMap(prev => ({ ...prev, [key]: false }));
+          });
+      });
+    });
+    // eslint-disable-next-line
+  }, [selectedLanguage, roleSelection, artistGridPage, searchVal]);
+
+  // PUBLIC_INTERFACE: Card for a single artist with vertical YouTube video list
+  function ArtistGridCard({ artist, role }) {
+    let songs = artist.songs && artist.songs.length < 5
+      ? Array(5).fill(0).map((_, i) => artist.songs[i % artist.songs.length])
+      : artist.songs;
+    songs = songs.slice(0, 5);
+
+    return (
+      <div style={{
+        background: COLORS.songCard,
+        borderRadius: 15,
+        boxShadow: "0 2px 16px #cd99d222",
+        border: `2px solid ${role === "singer" ? COLORS.primary : "#af78c2"}`,
+        color: COLORS.accent,
+        padding: "14px 7px 13px 7px",
+        minHeight: 330,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "stretch"
+      }}>
+        <div style={{
+          fontWeight: 800,
+          fontSize: 20,
+          color: role === "singer" ? COLORS.primary : "#af78c2",
+          marginBottom: 12,
+          textAlign: "center",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center"
+        }}>
+          <span style={{ fontSize: 22, marginRight: 8 }}>
+            {role === "singer" ? "🎤" : "🎼"}
+          </span>
+          {artist.name}
+        </div>
+        <div style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+          gap: 10,
+        }}>
+          {songs.map((songTitle, idx) => {
+            const songKey = `${role}|${artist.name}|${songTitle}`;
+            const video = songVideos[songKey];
+            const error = errorMap[songKey];
+            const loading = loadingMap[songKey];
+            return (
+              <div key={songKey} style={{
+                background: "#f9edfa",
+                borderRadius: 8,
+                padding: 0,
+                marginBottom: idx < 4 ? 3 : 0,
+                display: "flex", flexDirection: "column", alignItems: "center"
+              }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.accent, marginBottom: 3 }}>{songTitle}</div>
+                <div style={{ width: "100%", minHeight: 70 }}>
+                  {loading && <div style={{ color: "#af78c2", fontSize: 11 }}>Loading…</div>}
+                  {!loading && video && video.videoId &&
+                    <iframe
+                      title={artist.name + "|" + songTitle}
+                      width="95%"
+                      height="81"
+                      style={{
+                        borderRadius: 6,
+                        boxShadow: "0 3px 8px #aa63e732",
+                        margin: "0 auto",
+                        background: "#fff"
+                      }}
+                      src={`https://www.youtube.com/embed/${video.videoId}`}
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />}
+                  {!loading && !video && (
+                    <div style={{ color: "#e95271", fontSize: 10, marginTop: 2 }}>
+                      {error || "No video"}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // Layout: Show language grid if no language selected
+  if (!selectedLanguage) {
+    return (
+      <main style={{
+        minHeight: "calc(100vh - 70px)",
+        marginTop: 75,
+        background: COLORS.lightBg,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <div className="lang-grid">
+          {LANGUAGES.map((lang) => (
+            <div
+              className="lang-tile"
+              key={lang.key}
+              style={{ cursor: "pointer" }}
+              tabIndex={0}
+              role="button"
+              aria-label={`Show ${lang.label} music`}
+              onClick={() => {
+                setSelectedLanguage(lang.key);
+                setRoleSelection(null);
+                setArtistGridPage(0);
+              }}
+              onKeyPress={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  setSelectedLanguage(lang.key);
+                  setRoleSelection(null);
+                  setArtistGridPage(0);
+                }
+              }}
+            >
+              {lang.label}
+            </div>
+          ))}
+        </div>
+      </main>
+    );
+  }
+
+  // Layout: Show selection between "Singers" or "Music Directors", as prominent columns
+  if (!roleSelection) {
+    // Only both if music directors exist for this language
+    const isIndianLang = ["ta", "hi", "te", "ml", "kn"].includes(selectedLanguage);
+    return (
+      <main style={{
+        minHeight: "calc(100vh - 75px)",
+        marginTop: 75,
+        background: COLORS.lightBg,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center"
+      }}>
+        <div style={{
+          background: "#fff",
+          borderRadius: 34,
+          boxShadow: "0 4px 30px #e8bfdc44",
+          width: "95vw",
+          maxWidth: 880,
+          margin: "40px auto 0",
+          padding: "42px 0 40px 0",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "stretch",
+        }}>
+          <button
+            className="btn"
+            style={{
+              width: 105, alignSelf: "flex-start",
+              marginLeft: 45, marginBottom: 21, borderRadius: 9,
+              background: COLORS.primary, color: COLORS.lightText,
+              border: `1.5px solid ${COLORS.accent}`, fontWeight: 600
+            }}
+            onClick={() => {
+              setSelectedLanguage(null);
+              setRoleSelection(null);
+            }}>
+            ← Back
+          </button>
+          <div
+            style={{
+              display: "flex",
+              gap: 38,
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%"
+            }}
+          >
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setRoleSelection("singers")}
+              onKeyPress={e => { if (e.key === "Enter" || e.key === " ") setRoleSelection("singers"); }}
+              style={{
+                flex: 1,
+                background: "var(--card)",
+                borderRadius: 20,
+                border: `2.7px solid ${COLORS.primary}`,
+                boxShadow: "0 4px 24px #e87a4128",
+                minHeight: 210,
+                margin: 12,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 31,
+                fontWeight: 800,
+                color: COLORS.primary,
+                cursor: "pointer",
+                transition: "transform .13s, box-shadow .13s"
+              }}
+            >
+              <span style={{ fontSize: 35 }}>🎤</span>
+              <div style={{ fontSize: 27, marginTop: 10, marginBottom: 5 }}>Singers</div>
+            </div>
+            {isIndianLang && (
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => setRoleSelection("music-directors")}
+                onKeyPress={e => { if (e.key === "Enter" || e.key === " ") setRoleSelection("music-directors"); }}
+                style={{
+                  flex: 1,
+                  background: "var(--card)",
+                  borderRadius: 20,
+                  border: "2.7px solid #af78c2",
+                  boxShadow: "0 4px 24px #af78c225",
+                  minHeight: 210,
+                  margin: 12,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 31,
+                  fontWeight: 800,
+                  color: "#af78c2",
+                  cursor: "pointer",
+                  transition: "transform .13s, box-shadow .13s"
+                }}
+              >
+                <span style={{ fontSize: 36 }}>🎼</span>
+                <div style={{ fontSize: 27, marginTop: 10, marginBottom: 5 }}>Music Directors</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Layout: show the selected set (3x3 grid, with artist card "column" and their vertical YT embeds)
+  const { singers, musicDirectors } = getArtists(selectedLanguage);
+  const isSingers = roleSelection === "singers";
+  const fullList = isSingers ? singers : musicDirectors;
+
+  // Filtering (if search in future), just for searchBox/scroll add-on
+  const filtered = (!searchVal.trim())
+    ? fullList
+    : fullList.filter(a => a.name.toLowerCase().includes(searchVal.trim().toLowerCase()));
+
+  const maxPages = Math.ceil(filtered.length / 9);
+  const grid = filtered.slice(artistGridPage * 9, artistGridPage * 9 + 9);
+
+  return (
+    <main style={{
+      minHeight: "calc(100vh - 80px)",
+      marginTop: 72,
+      background: COLORS.lightBg,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center"
+    }}>
+      <div style={{
+        background: "#fff",
+        borderRadius: 34,
+        boxShadow: "0 5px 35px #b37fcc13",
+        width: "99vw",
+        maxWidth: 1550,
+        margin: "30px auto 0",
+        padding: "36px 8vw 44px 8vw",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "stretch"
+      }}>
+        {/* Top Bar with Back, Indicator & optional search */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 20,
+          gap: 13
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 13 }}>
+            <button
+              className="btn"
+              style={{
+                background: COLORS.primary,
+                color: COLORS.lightText,
+                border: `1.5px solid ${COLORS.accent}`,
+                fontWeight: 600,
+                padding: "9px 19px",
+                borderRadius: 8
+              }}
+              onClick={() => setRoleSelection(null)}
+            >← Back</button>
+            <span style={{
+              fontSize: 27,
+              color: isSingers ? COLORS.primary : "#af78c2",
+              fontWeight: 900,
+              letterSpacing: ".04em",
+              display: "flex",
+              alignItems: "center",
+              gap: 10
+            }}>
+              <span style={{ fontSize: 32 }}>{isSingers ? "🎤" : "🎼"}</span>
+              {isSingers ? "Singers" : "Music Directors"}
+            </span>
+          </div>
+          <input
+            type="text"
+            value={searchVal}
+            onChange={e => { setSearchVal(e.target.value); setArtistGridPage(0); }}
+            placeholder={`Search ${isSingers ? "Singers" : "Music Directors"} by name`}
+            className="input"
+            style={{
+              ...inputStyle,
+              minWidth: 190,
+              background: COLORS.searchBar,
+              border: `1.5px solid ${isSingers ? COLORS.primary : "#af78c2"}`,
+              color: COLORS.accent,
+              fontSize: 16,
+              marginBottom: 0,
+              fontWeight: 500
+            }}
+          />
+        </div>
+        {/* The 3x3 grid */}
+        <div style={{
+          marginTop: 7,
+          display: "grid",
+          gridTemplateColumns: "repeat(3, 1fr)",
+          gap: 30,
+          justifyItems: "center",
+          alignItems: "flex-start"
+        }}>
+          {grid.map(artist =>
+            <ArtistGridCard artist={artist} role={isSingers ? "singer" : "director"} key={artist.name} />
+          )}
+          {grid.length === 0 &&
+            <div style={{
+              gridColumn: "span 3",
+              color: "#888",
+              fontSize: 19,
+              fontWeight: 500,
+              margin: "44px 0",
+              textAlign: "center"
+            }}>
+              No {isSingers ? "singers" : "music directors"} found.
+            </div>
+          }
+        </div>
+        {/* Pagination */}
+        {maxPages > 1 && (
+          <div style={{
+            marginTop: 35,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 19
+          }}>
+            <button className="btn"
+              style={{ fontWeight: 600, opacity: artistGridPage === 0 ? 0.5 : 1 }}
+              onClick={() => setArtistGridPage(pg => (pg > 0 ? pg - 1 : 0))}
+              disabled={artistGridPage === 0}
+            >Prev</button>
+            <span style={{
+              fontWeight: 600,
+              color: isSingers ? COLORS.primary : "#af78c2",
+              fontSize: 17
+            }}>
+              Page {artistGridPage + 1} of {maxPages}
+            </span>
+            <button className="btn"
+              style={{ fontWeight: 600, opacity: artistGridPage >= maxPages - 1 ? 0.5 : 1 }}
+              onClick={() => setArtistGridPage(pg => (pg < maxPages - 1 ? pg + 1 : pg))}
+              disabled={artistGridPage >= maxPages - 1}
+            >Next</button>
+          </div>
+        )}
+      </div>
+      <style>
+        {`
+          @media (max-width: 1050px) {
+            .artist-card-grid {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
+          }
+          @media (max-width: 660px) {
+            .artist-card-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}
+      </style>
+    </main>
+  );
+}
 
   // Song item UI (identify video, error and loading)
   // PUBLIC_INTERFACE
