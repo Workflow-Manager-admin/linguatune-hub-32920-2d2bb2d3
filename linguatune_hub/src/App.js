@@ -259,7 +259,7 @@ function makeDemoArtists(langKey) {
       { name: "Arjun Janya", songs: ["Jeeva Hoovagide", "Aamele", "Sangathiye", "Ninna Nodalento", "Kurudu Kanchana"] },
       { name: "Manikanth Kadri", songs: ["Janumada Gelathi", "Premakke Sai", "Kanasugala Nanagu", "Ondu Malebillu", "Anthintha Heluve"] },
       { name: "Raghu Dixit", songs: ["Ninna Poojege Bande Mahadeshwara", "Lokada Kalaji", "Idu Entha Lokavayya", "Jag Changa", "Gudi Gudiya"] },
-      { name: "Sadhu Kokila", songs: ["3 Peg", "Chandramukhi Pranasakhi", "Chocolate Girl", "Thirboki Jeevana", "Haago Niliya"] },
+      { name: "Sadhu Kokila", songs: ["Chandramukhi Pranasakhi", "Thirboki Jeevana", "Haago Niliya"] },
       { name: "Ajaneesh Loknath", songs: ["Karabuu", "Hands Up", "Swalpaagidantha", "Shaakuntle Sikkalu", "Neenaade Naa"] }
     ]
   };
