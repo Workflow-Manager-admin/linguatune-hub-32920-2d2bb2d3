@@ -242,11 +242,16 @@ function makeDemoArtists(langKey) {
     ],
     ml: [
       { name: "M. Jayachandran", songs: ["Poomuthole", "Olanjali Kuruvi", "Mazhaye Mazhaye", "Mizhiyithalil Kanneer", "Aararo"] },
-      { name: "Gopi Sundar", songs: ["Malare", "Entammede Jimikki Kammal", "Pularkalam", "Aarodum Parayuka", "Pavizha Mazha"] },
-      { name: "Shaan Rahman", songs: ["Darshana", "Jimikki Kammal", "Vaanam Thilathilakkanu", "Naam Thammil", "Athmavin Akashathil"] },
-      { name: "Bijibal", songs: ["Onnum Mindathe", "Mukkathe Penne", "Oru Venal Puzhayil", "Mazha Paadum", "Megham Poothu Thudangi"] },
+      // Gopi Sundar: Remove 'Malare' and 'Jimikki Kammal' (neither are his compositions)
+      { name: "Gopi Sundar", songs: ["Pularkalam", "Aarodum Parayuka", "Pavizha Mazha"] },
+      // Shaan Rahman: Retain ONLY 'Jimikki Kammal'
+      { name: "Shaan Rahman", songs: ["Jimikki Kammal"] },
+      // Bijibal: Remove 'Oru Venal Puzhayil' (not his composition)
+      { name: "Bijibal", songs: ["Onnum Mindathe", "Mukkathe Penne", "Mazha Paadum", "Megham Poothu Thudangi"] },
+      // Deepak Dev: Keep as is (already correct major hits)
       { name: "Deepak Dev", songs: ["Chenthengin", "Mandaarame", "Chirakukal", "Pathirayo Pakalai", "Mazhamegha"] },
-      { name: "Hesham Abdul Wahab", songs: ["Kudukku", "Rathi Pushpam", "Toofan", "Darshana", "Unnimaya"] }
+      // Hesham Abdul Wahab: Only 'Darshana' (composer and singer). Remove others (incorrectly attributed).
+      { name: "Hesham Abdul Wahab", songs: ["Darshana"] }
     ],
     kn: [
       { name: "V. Harikrishna", songs: ["Belageddu", "Kareyole", "Raajakumara", "Ninna Snehadinda", "Simple Agi Ondh Love Story"] },
