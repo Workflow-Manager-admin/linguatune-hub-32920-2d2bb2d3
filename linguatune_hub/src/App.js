@@ -328,25 +328,63 @@ function Dashboard({ username }) {
   );
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * Renders a column for a language: shows YouTube-fetched suggestions,
+ * offers search-per-language, and displays loading/error feedback.
+ */
 function LanguageColumn({
   language,
   songSuggestions,
   onSongClick,
   showLyricsTab,
   selectedLyricsSongIdx,
-  onCloseLyrics
+  onCloseLyrics,
+  loading,
+  error
 }) {
   const [searchStr, setSearchStr] = useState("");
-  const filteredSongs = searchStr.trim()
-    ? songSuggestions.filter(
-        (song) =>
-          (song.title &&
-            song.title.toLowerCase().includes(searchStr.trim().toLowerCase())) ||
-          (song.artist &&
-            song.artist.toLowerCase().includes(searchStr.trim().toLowerCase()))
-      )
+  const [searchResult, setSearchResult] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState("");
+
+  // Handle search on user input
+  useEffect(() => {
+    let cancelled = false;
+    async function doSearch() {
+      if (!searchStr.trim()) {
+        setSearchResult([]);
+        setSearchLoading(false);
+        setSearchError("");
+        return;
+      }
+      setSearchLoading(true);
+      setSearchError("");
+      try {
+        const videos = await fetchYouTubeVideos(
+          `${searchStr} ${language.label} music`,
+          { maxResults: 7 }
+        );
+        if (!cancelled) setSearchResult(videos);
+      } catch (err) {
+        if (!cancelled) setSearchError("Error fetching results");
+      } finally {
+        if (!cancelled) setSearchLoading(false);
+      }
+    }
+    doSearch();
+    return () => { cancelled = true; };
+    // Only run effect when searchStr or language changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchStr, language.label]);
+
+  // Show search results if searching, otherwise suggestions
+  let songList = searchStr.trim()
+    ? searchResult
     : songSuggestions;
+
+  let isLoading = searchStr.trim() ? searchLoading : loading;
+  let showError = searchStr.trim() ? searchError : error;
 
   return (
     <section
@@ -394,14 +432,22 @@ function LanguageColumn({
         }}
       />
       <div style={{ flex: "1 1 auto", minHeight: 50, marginBottom: 5 }}>
-        {filteredSongs.length === 0 ? (
+        {isLoading ? (
+          <div style={{ color: "#af78c2", textAlign: "center", fontSize: 15 }}>
+            Loading...
+          </div>
+        ) : showError ? (
+          <div style={{ color: "#d33a4a", textAlign: "center", fontSize: 14 }}>
+            {showError}
+          </div>
+        ) : songList.length === 0 ? (
           <div style={{ color: "#aaa", textAlign: "center", fontSize: 15 }}>
             No results found.
           </div>
         ) : (
-          filteredSongs.map((song, idx) => (
+          songList.map((song, idx) => (
             <SongCard
-              key={song.title + song.artist}
+              key={(song.title || "") + (song.artist || "") + (song.videoId || idx)}
               song={song}
               langKey={language.key}
               idx={idx}
@@ -414,7 +460,7 @@ function LanguageColumn({
       {/* Lyrics Tab - only for columns that support it and have a selected song */}
       {showLyricsTab && typeof selectedLyricsSongIdx === "number" && (
         <LyricsPanel
-          song={songSuggestions[selectedLyricsSongIdx]}
+          song={songList[selectedLyricsSongIdx]}
           languageLabel={language.label}
           onClose={onCloseLyrics}
         />
