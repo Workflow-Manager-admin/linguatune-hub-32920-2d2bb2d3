@@ -855,8 +855,12 @@ function Dashboard({ username }) {
                   {clarify && clarify.mark}
                 </div>
                 <div style={{ width: "100%", minHeight: 70 }}>
-                  {loading && <div style={{ color: "#af78c2", fontSize: 11 }}>Loading…</div>}
-                  {!loading && video && video.videoId &&
+                  {loading && (
+                    <div style={{ color: "#af78c2", fontSize: 11 }}>
+                      Loading…
+                    </div>
+                  )}
+                  {!loading && video && video.videoId && (
                     <iframe
                       title={artist.name + "|" + songTitle}
                       width="95%"
@@ -871,10 +875,45 @@ function Dashboard({ username }) {
                       frameBorder="0"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
-                    />}
-                  {!loading && !video && (
-                    <div style={{ color: "#e95271", fontSize: 10, marginTop: 2 }}>
-                      {error || "No video"}
+                    />
+                  )}
+                  {/* Graceful fallback: friendly message if API error, quota issue, or no results */}
+                  {!loading && (!video || !video.videoId) && (
+                    <div
+                      style={{
+                        color: "#e95271",
+                        fontSize: 11,
+                        marginTop: 2,
+                        marginBottom: 4,
+                        width: "93%",
+                        padding: "5px 1vw",
+                        background: "#fff4f4",
+                        border: "1px dashed #ffb0c2",
+                        borderRadius: 5,
+                        minHeight: 20,
+                        textAlign: "center"
+                      }}
+                    >
+                      {error?.includes("limit") ? (
+                        <>
+                          <span role="img" aria-label="sad">😕</span>{" "}
+                          <strong>YouTube API limit reached.</strong> Try again later.
+                        </>
+                      ) : error ? (
+                        <>
+                          <span role="img" aria-label="no-video">🎬</span>{" "}
+                          <span>
+                            {error === "No video found." || error === "No result" || error === "No video"
+                              ? "No music video found for this song."
+                              : error}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span role="img" aria-label="not-found">🔍</span>{" "}
+                          No music video available.
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
