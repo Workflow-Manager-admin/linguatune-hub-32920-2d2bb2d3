@@ -53,12 +53,15 @@ function makeDemoArtists(langKey) {
       { name: "Armaan Malik", songs: ["Bol Do Na Zara", "Main Hoon Hero Tera", "Wajah Tum Ho", "Control", "Tere Mere"] }
     ],
     ta: [
-      { name: "Sean Roldan", songs: ["Vaanam Kottattum", "Pariyerum Perumal Theme", "Mayakka Ponna", "Maara Theme", "Kannaana Kanney"] },
-      { name: "Pradeep Kumar", songs: ["Aagayam Theepidicha", "Maya Nadhi", "Naan Nee", "Kannamma", "Yaanji"] },
+      // Sean Roldan: remove 'Maara Theme' and 'Kannaana Kanney'
+      { name: "Sean Roldan", songs: ["Vaanam Kottattum", "Pariyerum Perumal Theme", "Mayakka Ponna"] },
+      // Pradeep Kumar: remove 'Yaanji'
+      { name: "Pradeep Kumar", songs: ["Aagayam Theepidicha", "Maya Nadhi", "Naan Nee", "Kannamma"] },
       { name: "Dhanush", songs: ["Rowdy Baby", "Kolaveri Di", "Amma Amma", "Po Indru Neeyaga", "Thulli Thulli"] },
       { name: "Karthik", songs: ["Ava Enna", "Unakkena Iruppen", "Usure Pogudhey", "Oru Naalil", "Vizhi Moodi"] },
       { name: "Sid Sriram", songs: ["Ennodu Nee Irundhaal", "Maruvaarthai", "Thalli Pogathey", "Unakku Thaan", "Adiye"] },
-      { name: "Chinmayi", songs: ["Sara Sara", "Idhu Varai", "Un Perai Sollum", "Lago Mare", "Oh Penne"] }
+      // Chinmayi: remove 'Idhu Varai', 'Un Perai Sollum', 'Lago Mare'
+      { name: "Chinmayi", songs: ["Sara Sara", "Oh Penne"] }
     ],
     te: [
       { name: "Sid Sriram", songs: ["Samajavaragamana", "Inkem Inkem Inkem Kaavaale", "Pilla Raa", "Adiga Adiga", "Manasa"] },
