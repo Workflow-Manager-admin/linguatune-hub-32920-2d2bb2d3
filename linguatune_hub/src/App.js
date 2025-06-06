@@ -383,42 +383,51 @@ function AuthForm({ onAuthComplete }) {
   );
 }
 
-/* PUBLIC_INTERFACE - Updated Dashboard for language-artist-song-player view */
+/* PUBLIC_INTERFACE - Refactored Dashboard for dual-column (singer/music director) artist display */
 function Dashboard({ username }) {
-  // Moved all hooks to the top level per rules-of-hooks
   const [selectedLanguage, setSelectedLanguage] = useState(null);
+  // Map: "ROLE|ARTIST|SONG" => videoData
   const [songVideos, setSongVideos] = useState({});
   const [loadingMap, setLoadingMap] = useState({});
   const [errorMap, setErrorMap] = useState({});
-  const [openPlayers, setOpenPlayers] = useState({}); // {artist:song: true}
-  const [searchVal, setSearchVal] = useState("");
-  // New: Make artist selection state always present so hook order remains valid
-  const [activeArtistIdx, setActiveArtistIdx] = useState(null);
+  const [openPlayers, setOpenPlayers] = useState({});
+  const [searchVals, setSearchVals] = useState({ singer: "", director: "" });
+  const [expandedArtist, setExpandedArtist] = useState({ singer: null, director: null });
 
-  // Fetch videos for all artists/songs in the selected language
+  // For language selection: get demo artist lists
+  const roleKeys = ["singer", "director"];
+  function getArtists(langKey) {
+    // Grab mocks
+    if (!langKey) return { singers: [], musicDirectors: [] };
+    return makeDemoArtists(langKey);
+  }
+
+  // Fetch videos for all displayed artists/songs (trigger on language change)
   useEffect(() => {
     let ignore = false;
     if (!selectedLanguage) return;
-    const artists = ARTISTS[selectedLanguage] || [];
-    // Flatten list of { artist, song } objects for lookup by artist+song
+    const { singers, musicDirectors } = getArtists(selectedLanguage);
+    const allArtists = [
+      ...singers.map(a => ({ ...a, role: "singer" })),
+      ...musicDirectors.map(a => ({ ...a, role: "director" }))
+    ];
     const fetchAll = async () => {
       let vids = {}, loads = {}, errs = {};
-      for (let artistObj of artists) {
-        for (let songTitle of artistObj.songs) {
-          const key = artistObj.name + "|" + songTitle;
+      for (const artistObj of allArtists) {
+        for (const songTitle of artistObj.songs) {
+          const key = `${artistObj.role}|${artistObj.name}|${songTitle}`;
           loads[key] = true;
           try {
-            // Always query as "Artist - Song" for accuracy
             const videos = await fetchYouTubeVideos(`${artistObj.name} ${songTitle}`, { maxResults: 1 });
             vids[key] = Array.isArray(videos) && videos[0] ? videos[0] : null;
             errs[key] = (Array.isArray(videos) && videos.length > 0) ? "" : "No video found";
-          } catch (err) {
+          } catch {
             vids[key] = null;
             errs[key] = "Video error";
           }
           loads[key] = false;
           if (ignore) break;
-          // update state after each to smoothly enable thumbnails
+          // update state after each video (so early songs show previews)
           setSongVideos((prev) => ({ ...prev, [key]: vids[key] }));
           setLoadingMap((prev) => ({ ...prev, [key]: false }));
           setErrorMap((prev) => ({ ...prev, [key]: errs[key] }));
@@ -437,35 +446,34 @@ function Dashboard({ username }) {
     return () => { ignore = true; };
   }, [selectedLanguage]);
 
-  // Reset search value and artist selection on language change
   useEffect(() => {
-    setSearchVal("");
-    setActiveArtistIdx(null);
+    // Reset on language change
+    setSearchVals({ singer: "", director: "" });
+    setExpandedArtist({ singer: null, director: null });
   }, [selectedLanguage]);
 
-  // If a language is selected, show artist columns. Clicking an artist reveals their songs (with YouTube & lyrics).
   if (selectedLanguage) {
     const langObj = LANGUAGES.find((l) => l.key === selectedLanguage);
-    const artists = ARTISTS[selectedLanguage];
+    const { singers, musicDirectors } = getArtists(selectedLanguage);
 
-    // Allow search artists by name (optional: keep for quick QA, can be simplified for prod)
-    const filteredArtists =
-      !searchVal.trim()
-        ? artists
-        : artists
-            .map(artist => ({
-              ...artist,
-              // Allow filter by artist name or their songs
-              songs: artist.songs.filter(
-                song =>
-                  song.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
-                  artist.name.toLowerCase().includes(searchVal.trim().toLowerCase())
-              )
-            }))
-            .filter(a => a.songs.length > 0);
+    // Filter/expand each column's artist list
+    function filterByRole(list, searchVal) {
+      if (!searchVal.trim()) return list;
+      return list
+        .map(artist => ({
+          ...artist,
+          songs: artist.songs.filter(song =>
+            song.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
+            artist.name.toLowerCase().includes(searchVal.trim().toLowerCase())
+          )
+        }))
+        .filter(artist => artist.songs.length > 0);
+    }
 
-    // Responsive columns: use 1-6 columns, but default to always 6 on desktop
-    // We'll show only the six filtered (or all) artists in a grid row
+    // For role label
+    const roleLabels = { singer: "Singers", director: "Music Directors" };
+    const roleSources = { singer: singers, director: musicDirectors };
+    const roleIcons = { singer: "🎤", director: "🎼" };
 
     return (
       <main
@@ -481,18 +489,18 @@ function Dashboard({ username }) {
         <div
           style={{
             background: "#fff",
-            borderRadius: 22,
+            borderRadius: 24,
             boxShadow: "0 4px 32px #f4e2eb2c",
             width: "98vw",
-            maxWidth: 1300,
+            maxWidth: 1500,
             margin: "35px auto 0",
-            padding: "36px 24px 30px 24px",
+            padding: "26px 15px 30px 15px",
             display: "flex",
             flexDirection: "column",
             alignItems: "stretch"
           }}
         >
-          {/* Header row w/back button */}
+          {/* Header row with Back button and title */}
           <div
             style={{
               display: "flex",
@@ -506,14 +514,14 @@ function Dashboard({ username }) {
               style={{
                 color: COLORS.primary,
                 fontWeight: 700,
-                fontSize: 26,
+                fontSize: 27,
                 letterSpacing: "0.01em",
                 margin: 0,
                 flex: 1,
                 lineHeight: 1.18
               }}
             >
-              {langObj && langObj.label} - Artists
+              {langObj && langObj.label} — <span style={{ color: COLORS.accent }}>Artists</span>
             </h2>
             <button
               className="btn"
@@ -532,199 +540,214 @@ function Dashboard({ username }) {
               ← Back
             </button>
           </div>
-          {/* Search row */}
-          <input
-            type="text"
-            value={searchVal}
-            onChange={e => setSearchVal(e.target.value)}
-            placeholder={`Search artists in ${langObj ? langObj.label : ""}`}
-            className="input"
-            style={{
-              ...inputStyle,
-              background: COLORS.searchBar,
-              border: `1.4px solid ${COLORS.primary}`,
-              color: COLORS.accent,
-              marginBottom: 25,
-              fontSize: 16
-            }}
-            autoFocus
-          />
-          {/* Artist columns row */}
+          {/* Two main columns: singers/music directors */}
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(6, 1fr)",
-              gap: 28,
-              marginTop: 3,
-              marginBottom: 8,
-              minHeight: 160,
-              width: "100%"
+              display: "flex",
+              gap: 40,
+              width: "100%",
+              alignItems: "flex-start",
+              flexWrap: "wrap"
             }}
           >
-            {filteredArtists.length === 0 ? (
-              <div style={{ gridColumn: "span 6", color: "#aaa", fontSize: 15, textAlign: "center" }}>
-                No matching artists found.
-              </div>
-            ) : filteredArtists.map((artist, i) => (
-              <div
-                key={artist.name}
-                style={{
-                  background: activeArtistIdx === i ? COLORS.primary : COLORS.songCard,
-                  borderRadius: 16,
-                  boxShadow: activeArtistIdx === i ? "0 4px 22px #e87a4155" : "0 2px 14px #e87a4122",
-                  border: `2.7px solid ${COLORS.primary}`,
-                  color: activeArtistIdx === i ? COLORS.songCard : COLORS.accent,
-                  padding: "32px 14px 24px 14px",
-                  fontWeight: 700,
-                  fontSize: 19,
-                  textAlign: "center",
-                  cursor: "pointer",
-                  transition: "all 0.15s",
-                  minHeight: 130,
-                  position: "relative",
-                  outline: activeArtistIdx === i ? "3px solid #fe86d840" : "none"
-                }}
-                tabIndex={0}
-                aria-label={`Show songs for ${artist.name}`}
-                onClick={() => setActiveArtistIdx(i === activeArtistIdx ? null : i)}
-                onKeyPress={e => {
-                  if (e.key === "Enter" || e.key === " ") setActiveArtistIdx(i === activeArtistIdx ? null : i);
-                }}
-              >
-                {artist.name}
-                {activeArtistIdx === i && (
+            {roleKeys.map(role => {
+              const list = roleSources[role];
+              const filtered = filterByRole(list, searchVals[role]);
+              return (
+                <div
+                  key={role}
+                  style={{
+                    flex: "1 1 420px",
+                    background: "var(--light-gray)",
+                    borderRadius: 18,
+                    boxShadow: "0 0px 21px #e87a4112",
+                    minWidth: 320,
+                    maxWidth: 560,
+                    padding: "26px 20px 12px 20px"
+                  }}
+                >
+                  {/* Role Title */}
                   <div
                     style={{
-                      position: "absolute",
-                      right: 10,
-                      top: 10,
-                      color: COLORS.primary,
-                      fontWeight: 900,
-                      fontSize: 22
+                      fontWeight: 800,
+                      color: role === "singer" ? COLORS.primary : "#af78c2",
+                      fontSize: 22,
+                      marginBottom: 5,
+                      letterSpacing: ".01em",
+                      display: "flex", alignItems: "center", gap: 10
                     }}
                   >
-                    ↓
+                    <span style={{ fontSize: 23 }}>{roleIcons[role]}</span>
+                    {roleLabels[role]}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-          {/* If an artist is selected, show their songs in a row below */}
-          {typeof activeArtistIdx === "number" && filteredArtists[activeArtistIdx] ? (
-            <div
-              style={{
-                background: COLORS.songCard,
-                borderRadius: 18,
-                marginTop: 30,
-                padding: "34px 22px 16px 22px",
-                boxShadow: "0 6px 28px #eacfef2b"
-              }}
-            >
-              <div
-                style={{
-                  fontWeight: 700,
-                  color: COLORS.primary,
-                  fontSize: 23,
-                  marginBottom: 18,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 10
-                }}
-              >
-                <span role="img" aria-label="musical note">🎤️</span>
-                {filteredArtists[activeArtistIdx].name} - Famous Songs
-              </div>
-              {/* SONGS */}
-              {filteredArtists[activeArtistIdx].songs.map((songTitle) => {
-                const songKey = filteredArtists[activeArtistIdx].name + "|" + songTitle;
-                const video = songVideos[songKey];
-                const error = errorMap[songKey];
-                const loading = loadingMap[songKey];
-                return (
-                  <div
-                    key={songKey}
+                  {/* Search in this role */}
+                  <input
+                    type="text"
+                    value={searchVals[role]}
+                    onChange={e => setSearchVals(vals => ({ ...vals, [role]: e.target.value }))}
+                    placeholder={`Search ${roleLabels[role]} in ${langObj ? langObj.label : ""}`}
+                    className="input"
                     style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: 26,
-                      marginBottom: 32,
-                      borderBottom: "1.3px solid #efddf8",
-                      paddingBottom: 19
+                      ...inputStyle,
+                      background: COLORS.searchBar,
+                      border: `1.4px solid ${COLORS.primary}`,
+                      color: COLORS.accent,
+                      marginBottom: 17,
+                      fontSize: 15
                     }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, color: COLORS.accent, fontSize: 19, marginBottom: 3 }}>
-                        {songTitle}
+                  />
+                  <div style={{
+                    maxHeight: "62vh",
+                    overflow: "auto",
+                    borderRadius: 14,
+                    paddingRight: 8
+                  }}>
+                    {/* Artist expandable cards */}
+                    {filtered.length === 0 ? (
+                      <div style={{ color: "#aaa", fontSize: 16, margin: "18px 0" }}>
+                        No matching {roleLabels[role].toLowerCase()} found.
                       </div>
-                      <div style={{ color: "#9c69ad", fontSize: 15, fontWeight: 500, marginBottom: 1 }}>
-                        {filteredArtists[activeArtistIdx].name}
-                      </div>
-                      {/* Lyrics for EN/HI only */}
-                      {canShowLyrics(selectedLanguage) && (
-                        <LyricsFetcher artist={filteredArtists[activeArtistIdx].name} title={songTitle} />
-                      )}
-                    </div>
-                    <div style={{ minWidth: 180, textAlign: "center", marginTop: 2 }}>
-                      {loading && <div style={{ color: "#af78c2", fontSize: 15 }}>Loading video...</div>}
-                      {!loading && video && video.thumbnail && (
-                        <div
-                          style={{ cursor: "pointer", borderRadius: 8, overflow: "hidden" }}
-                          onClick={() => setOpenPlayers((prev) => ({ ...prev, [songKey]: !prev[songKey] }))}
-                          tabIndex={0}
-                          role="button"
-                          aria-label="Show/hide player"
-                        >
-                          <img
-                            src={video.thumbnail}
-                            alt={songTitle + " thumbnail"}
-                            style={{
-                              width: 155,
-                              borderRadius: 8,
-                              boxShadow: "0 2px 12px #df86e927",
-                              marginBottom: 5
-                            }}
-                          />
-                          <div
-                            style={{
-                              fontSize: 13,
-                              color: COLORS.primary,
-                              background: "rgba(254,134,216,0.08)",
-                              borderRadius: 7
-                            }}
-                          >
-                            {openPlayers[songKey] ? "Hide Video" : "Play Video"}
+                    ) : filtered.map((artist, idx) => (
+                      <div
+                        key={artist.name}
+                        style={{
+                          background: expandedArtist[role] === idx ? "#fff2f9" : COLORS.songCard,
+                          borderRadius: 11,
+                          boxShadow: expandedArtist[role] === idx ? "0 3px 15px #e87a4124" : "none",
+                          border: expandedArtist[role] === idx ? `2.2px solid ${COLORS.primary}` : "1.15px solid #e4caea",
+                          color: COLORS.accent,
+                          marginBottom: 11,
+                          fontWeight: 700,
+                          fontSize: 17,
+                          padding: "15px 10px 13px 12px",
+                          cursor: "pointer",
+                          transition: "all 0.12s"
+                        }}
+                        tabIndex={0}
+                        aria-label={`Show songs for ${artist.name}`}
+                        onClick={() =>
+                          setExpandedArtist(prev => ({
+                            ...prev,
+                            [role]: prev[role] === idx ? null : idx
+                          }))
+                        }
+                        onKeyPress={e => {
+                          if (e.key === "Enter" || e.key === " ")
+                            setExpandedArtist(prev => ({
+                              ...prev,
+                              [role]: prev[role] === idx ? null : idx
+                            }));
+                        }}
+                      >
+                        {artist.name}
+                        {expandedArtist[role] === idx && (
+                          <span style={{
+                            float: "right",
+                            color: COLORS.primary,
+                            fontWeight: 700,
+                            fontSize: 21
+                          }}>↓</span>
+                        )}
+                        {/* Show songs for expanded artist */}
+                        {expandedArtist[role] === idx && (
+                          <div style={{ marginTop: 9 }}>
+                            {artist.songs.map(songTitle => {
+                              const songKey = `${role}|${artist.name}|${songTitle}`;
+                              const video = songVideos[songKey];
+                              const error = errorMap[songKey];
+                              const loading = loadingMap[songKey];
+                              return (
+                                <div
+                                  key={songKey}
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "flex-start",
+                                    gap: 20,
+                                    marginBottom: 17,
+                                    borderBottom: "1.1px solid #efddf8",
+                                    paddingBottom: 13
+                                  }}
+                                >
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontWeight: 700, color: COLORS.accent, fontSize: 16, marginBottom: 1 }}>
+                                      {songTitle}
+                                    </div>
+                                    <div style={{ color: "#b7769b", fontSize: 14, fontWeight: 500, marginBottom: 2 }}>
+                                      {artist.name}
+                                    </div>
+                                    {/* Lyrics (for EN/HI and only in singers column) */}
+                                    {role === "singer" && canShowLyrics(selectedLanguage) && (
+                                      <LyricsFetcher artist={artist.name} title={songTitle} />
+                                    )}
+                                  </div>
+                                  <div style={{ minWidth: 145, textAlign: "center", marginTop: 2 }}>
+                                    {loading && <div style={{ color: "#af78c2", fontSize: 13 }}>Loading video...</div>}
+                                    {!loading && video && video.thumbnail && (
+                                      <div
+                                        style={{ cursor: "pointer", borderRadius: 7, overflow: "hidden" }}
+                                        onClick={() => setOpenPlayers((prev) => ({ ...prev, [songKey]: !prev[songKey] }))}
+                                        tabIndex={0}
+                                        role="button"
+                                        aria-label="Show/hide player"
+                                      >
+                                        <img
+                                          src={video.thumbnail}
+                                          alt={songTitle + " thumbnail"}
+                                          style={{
+                                            width: 125,
+                                            borderRadius: 8,
+                                            boxShadow: "0 2px 8px #df86e924",
+                                            marginBottom: 4
+                                          }}
+                                        />
+                                        <div
+                                          style={{
+                                            fontSize: 11,
+                                            color: COLORS.primary,
+                                            background: "rgba(254,134,216,0.08)",
+                                            borderRadius: 6
+                                          }}
+                                        >
+                                          {openPlayers[songKey] ? "Hide Video" : "Play Video"}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {!loading && !video && (
+                                      <div style={{ color: "#e95271", fontSize: 12, marginTop: 6 }}>
+                                        {error || "No video found"}
+                                      </div>
+                                    )}
+                                    {openPlayers[songKey] && video && video.videoId && (
+                                      <iframe
+                                        title={songTitle + " Video"}
+                                        width="98%"
+                                        height="98"
+                                        style={{ borderRadius: 6, marginTop: 6, boxShadow: "0 6px 12px #eaabfd14" }}
+                                        src={`https://www.youtube.com/embed/${video.videoId}`}
+                                        frameBorder="0"
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                        allowFullScreen
+                                      />
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
-                        </div>
-                      )}
-                      {!loading && !video && (
-                        <div style={{ color: "#e95271", fontSize: 13, marginTop: 7 }}>
-                          {error || "No video found"}
-                        </div>
-                      )}
-                      {openPlayers[songKey] && video && video.videoId && (
-                        <iframe
-                          title={songTitle + " Video"}
-                          width="100%"
-                          height="134"
-                          style={{ borderRadius: 9, marginTop: 7, boxShadow: "0 9px 18px #eaabfd28" }}
-                          src={`https://www.youtube.com/embed/${video.videoId}`}
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      )}
-                    </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-          ) : null}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </main>
     );
   }
 
-  // Otherwise, show the grid of language tiles.
+  // Default language grid
   return (
     <main
       style={{
