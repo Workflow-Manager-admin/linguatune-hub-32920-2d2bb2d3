@@ -35,6 +35,7 @@ function makeDemoArtists(langKey) {
   // Define unique, real, and prominent artists for each language.
   // Each artist appears only once; all available songs for each are listed under their card.
 
+  // --- Refactored Telugu singers & attribution logic with clarifying UI notes for collaborative/minor roles ---
   const SINGER_SEED = {
     en: [
       { name: "Taylor Swift", songs: ["Love Story", "Cardigan", "Blank Space", "Shake It Off", "Cruel Summer"] },
@@ -64,12 +65,16 @@ function makeDemoArtists(langKey) {
       { name: "Chinmayi", songs: ["Sara Sara", "Oh Penne"] }
     ],
     te: [
-      { name: "Sid Sriram", songs: ["Samajavaragamana", "Inkem Inkem Inkem Kaavaale", "Pilla Raa", "Adiga Adiga", "Manasa"] },
-      { name: "Shreya Ghoshal", songs: ["Saaho Re", "Hey Pillagada", "Chiranjeevi Chiranjeevi", "Ye Chota Nuvvunna", "Neeli Neeli Akasam"] },
-      { name: "S. P. Balasubrahmanyam", songs: ["Priya Priya", "Ee Reyi Theyanadi", "Madhumasam", "Jagadananda Karaka", "Bangaru Kodi Petta"] },
+      // Telugu singer-song attributions corrected
+      { name: "Sid Sriram", songs: ["Samajavaragamana", "Inkem Inkem Inkem Kaavaale", "Manasa", "Chiranjeevi Chiranjeevi"] },
+      { name: "Anurag Kulkarni", songs: ["Pilla Raa"] },
+      { name: "Ramya Behara", songs: ["Adiga Adiga"] },
+      { name: "Shreya Ghoshal", songs: ["Saaho Re", "Hey Pillagada", "Ye Chota Nuvvunna"] },
+      { name: "Sunitha", songs: ["Naa Manasuki", "Mamathala Thalli", "Nee Kallalona", "Yevaro", "Vintunnava", "Neeli Neeli Akasam"] },
       { name: "Chinmayi", songs: ["Yem Sandeham Ledu", "Pranaamam", "Nijamainadi", "Darshana", "Kanulanu Thaake"] },
-      { name: "Mangli", songs: ["Saranga Dariya", "Oo Antava", "Bullet Bandi", "Ramuloo Ramulaa", "Gangavva Song"] },
-      { name: "Sunitha", songs: ["Naa Manasuki", "Mamathala Thalli", "Nee Kallalona", "Yevaro", "Vintunnava"] }
+      // Oo Antava credited to Indravathi Chauhan, not Mangli; Mangli's role in Ramuloo Ramulaa clarified by UI note (see below)
+      { name: "Mangli", songs: ["Saranga Dariya", "Bullet Bandi", "Ramuloo Ramulaa", "Gangavva Song"] }, // extra - UI note for Ramuloo Ramulaa
+      { name: "Indravathi Chauhan", songs: ["Oo Antava"] }
     ],
     ml: [
       { name: "Sithara Krishnakumar", songs: ["Pavizha Mazha", "Vaanam Thilathilakkanu", "Oru Venal Puzhayil", "Anuraga Vilochananayi", "Ee Shishirakaalam"] },
