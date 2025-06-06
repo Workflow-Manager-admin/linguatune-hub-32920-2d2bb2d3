@@ -99,8 +99,8 @@ function makeDemoArtists(langKey) {
       { name: "Finneas O'Connell", songs: ["bad guy", "everything i wanted", "lovely", "When the Party's Over", "Bury a Friend"] }
     ],
     hi: [
-      { name: "A. R. Rahman", songs: ["Jai Ho", "Kun Faya Kun", "Roobaroo", "Dil Se Re", "Tere Bina"] },
-      { name: "Pritam", songs: ["Channa Mereya", "Tum Hi Ho Bandhu", "Badtameez Dil", "Agar Tum Saath Ho", "Gerua"] },
+      { name: "A. R. Rahman", songs: ["Jai Ho", "Kun Faya Kun", "Roobaroo", "Dil Se Re", "Tere Bina", "Agar Tum Saath Ho"] },
+      { name: "Pritam", songs: ["Channa Mereya", "Tum Hi Ho Bandhu", "Badtameez Dil", "Gerua"] },
       { name: "Vishal-Shekhar", songs: ["Ghungroo", "Radha", "Bin Tere", "Balam Pichkari", "Desi Girl"] },
       { name: "Shankar–Ehsaan–Loy", songs: ["Mitwa", "Senorita", "Kal Ho Naa Ho", "Gallan Goodiyaan", "Sapno Se Bhare"] },
       { name: "Ajay-Atul", songs: ["Zingat", "Mere Nishaan", "Abhi Mujh Mein Kahin", "Apsara Aali", "Sairat Zaala Ji"] },
