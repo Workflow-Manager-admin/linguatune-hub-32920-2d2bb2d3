@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import { fetchYouTubeVideos } from "./youtubeApi";
+import { fetchLyrics } from "./lyricsApi";
 
 // --- Constants for Theme and Language Columns ---
 const COLORS = {
@@ -250,8 +251,9 @@ function AuthForm({ onAuthComplete }) {
  * Dashboard showing all language columns with YouTube-powered suggestions and search.
  */
 function Dashboard({ username }) {
-  // State: lyrics tab info
-  const [selectedLyrics, setSelectedLyrics] = useState(null);
+  // State: manages which (if any) lyrics tab/column is open, and tracking its song
+  const [selectedLyrics, setSelectedLyrics] = useState(null); // { langKey, songIndex }
+
   // Per-language initial suggestions (YouTube)
   const [suggested, setSuggested] = useState({});
   const [loading, setLoading] = useState({});
@@ -321,6 +323,8 @@ function Dashboard({ username }) {
                 : undefined
             }
             onCloseLyrics={closeLyrics}
+            // inject lyrics fetch for columns
+            fetchLyricsApi={fetchLyrics}
           />
         ))}
       </div>
