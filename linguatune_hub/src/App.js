@@ -394,6 +394,9 @@ function Dashboard({ username }) {
   const [searchVals, setSearchVals] = useState({ singer: "", director: "" });
   const [expandedArtist, setExpandedArtist] = useState({ singer: null, director: null });
 
+  // Make sure all hooks are called at the top level
+  const [activeRole, setActiveRole] = useState("singer");
+
   // Roles for columns: keep consistent order!
   const ROLES = [
     { key: "singer", label: "Singers", icon: "🎤", accent: COLORS.primary },
