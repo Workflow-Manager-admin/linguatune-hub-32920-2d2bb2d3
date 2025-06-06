@@ -844,6 +844,73 @@ function Dashboard({ username }) {
   );
 }
 
+// LyricsFetcher: Fetch lyrics for EN/HI if available and show a "Show Lyrics" expandable tab
+function LyricsFetcher({ artist, title }) {
+  const [open, setOpen] = useState(false);
+  const [lyrics, setLyrics] = useState("");
+  const [status, setStatus] = useState("idle"); // idle/loading/done/error
+
+  useEffect(() => {
+    if (!open) return;
+    setStatus("loading");
+    fetchLyrics(artist, title)
+      .then(l => { setLyrics(l); setStatus("done"); })
+      .catch(() => { setLyrics(""); setStatus("error"); });
+  }, [open, artist, title]);
+
+  return (
+    <div>
+      <button
+        className="link-btn"
+        style={{ marginTop: 3, marginBottom: 3, fontSize: 13 }}
+        onClick={() => setOpen(v => !v)}
+      >
+        {open ? "Hide Lyrics" : "Show Lyrics"}
+      </button>
+      {open && (
+        <div style={{
+          marginTop: 5, background: "#f8f0fa", borderLeft: `4px solid ${COLORS.primary}`,
+          borderRadius: 8, padding: "10px 13px", color: COLORS.accent, fontSize: 15, boxShadow: "0 2px 12px #c7afb078"
+        }}>
+          {status === "loading"
+            ? "Loading lyrics..."
+            : status === "error"
+              ? "Lyrics not available."
+              : lyrics}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// -- General UI styles --
+const inputStyle = {
+  width: "100%",
+  padding: "9px 10px",
+  borderRadius: 8,
+  border: `1.2px solid #ded3e7`,
+  background: "#fff",
+  color: COLORS.accent,
+  fontSize: 16,
+  marginTop: 3,
+  outline: "none",
+  marginBottom: 3,
+  transition: "border 0.15s"
+};
+
+const linkBtnStyle = {
+  border: "none",
+  background: "none",
+  color: COLORS.primary,
+  cursor: "pointer",
+  textDecoration: "underline",
+  fontWeight: 600,
+  fontSize: 15,
+  padding: 0
+};
+
+export default App;
+
   // Song item UI (identify video, error and loading)
   // PUBLIC_INTERFACE
   function SongItem({ artist, songTitle, role }) {
