@@ -1,7 +1,7 @@
 /**
  * Exports the YouTube Data API key for use across the app to ensure a single source of truth.
  */
-export const YOUTUBE_API_KEY = "AIzaSyCtjSiI6tbrVPQ1FY0m2HmfNwLd0UXUwm4"; // Updated API key (new, provided by user)
+export const YOUTUBE_API_KEY = "AIzaSyApTKXpsht2xhlKPXVb11xZv_WUgM8ko40"; // Updated API key (new, per user request)
 
 /**
  * PUBLIC_INTERFACE
