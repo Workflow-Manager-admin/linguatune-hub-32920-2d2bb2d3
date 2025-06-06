@@ -485,6 +485,82 @@ function Dashboard({ username }) {
   // Determine what to render
   let content = null;
 
+  // Song item UI (identify video, error and loading)
+  function SongItem({ artist, songTitle, role }) {
+    const songKey = `${role}|${artist.name}|${songTitle}`;
+    const video = songVideos[songKey];
+    const error = errorMap[songKey];
+    const loading = loadingMap[songKey];
+    return (
+      <div
+        key={songKey}
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 9,
+          marginBottom: 9,
+          borderBottom: "1px solid #e6d0ed",
+          paddingBottom: 4
+        }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontWeight: 700, color: COLORS.accent, fontSize: 14 }}>{songTitle}</div>
+          <div style={{ color: "#b7769b", fontSize: 11, fontWeight: 500, marginBottom: 0 }}>{artist.name}</div>
+          {role === "singer" && canShowLyrics(selectedLanguage) && (
+            <LyricsFetcher artist={artist.name} title={songTitle} />
+          )}
+        </div>
+        <div style={{ minWidth: 76, textAlign: "center" }}>
+          {loading && <div style={{ color: "#af78c2", fontSize: 11 }}>Loading…</div>}
+          {!loading && video && video.thumbnail && (
+            <div
+              style={{ cursor: "pointer", borderRadius: 6, overflow: "hidden" }}
+              onClick={() => setOpenPlayers(prev => ({ ...prev, [songKey]: !prev[songKey] }))}
+              tabIndex={0}
+              role="button"
+              aria-label="Show/hide player"
+            >
+              <img
+                src={video.thumbnail}
+                alt={songTitle + " thumbnail"}
+                style={{
+                  width: 63, borderRadius: 6,
+                  boxShadow: "0 2px 7px #df86e92b",
+                  marginBottom: 4
+                }}
+              />
+              <div style={{
+                fontSize: 9,
+                color: COLORS.primary,
+                background: "rgba(254,134,216,0.11)",
+                borderRadius: 5,
+                marginTop: 2
+              }}>
+                {openPlayers[songKey] ? "Hide" : "Play"}
+              </div>
+            </div>
+          )}
+          {!loading && !video && (
+            <div style={{ color: "#e95271", fontSize: 10, marginTop: 2 }}>
+              {error || "No video"}
+            </div>
+          )}
+          {openPlayers[songKey] && video && video.videoId && (
+            <iframe
+              title={songTitle + " Video"}
+              width="97%"
+              height="56"
+              style={{ borderRadius: 6, marginTop: 3, boxShadow: "0 4px 8px #eaabfd12" }}
+              src={`https://www.youtube.com/embed/${video.videoId}`}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Helper to render a full artist list, in a scrollable column, showing all required singers/music directors as a list
   function ArtistRoleColumn({ artists, roleKey, label, icon, color, searchVal, onSearchChange }) {
     return (
