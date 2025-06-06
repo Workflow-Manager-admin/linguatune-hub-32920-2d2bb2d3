@@ -460,22 +460,30 @@ function Dashboard({ username }) {
   const [searchVal, setSearchVal] = useState("");
   useEffect(() => { setSearchVal(""); }, [selectedLanguage]);
 
-  // If a language is selected, show artists & their songs
+  // If a language is selected, show artist columns. Clicking an artist reveals their songs (with YouTube & lyrics).
   if (selectedLanguage) {
     const langObj = LANGUAGES.find((l) => l.key === selectedLanguage);
     const artists = ARTISTS[selectedLanguage];
-    // Search artists or song names
-    const filteredArtists = !searchVal.trim()
-      ? artists
-      : artists.map(artist =>
-        ({
-          ...artist,
-          songs: artist.songs.filter(song =>
-            song.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
-            artist.name.toLowerCase().includes(searchVal.trim().toLowerCase())
-          )
-        })
-      ).filter(a => a.songs.length > 0);
+    const [activeArtistIdx, setActiveArtistIdx] = useState(null);
+
+    // Allow search artists by name (optional: keep for quick QA, can be simplified for prod)
+    const filteredArtists =
+      !searchVal.trim()
+        ? artists
+        : artists
+            .map(artist => ({
+              ...artist,
+              // Allow filter by artist name or their songs
+              songs: artist.songs.filter(
+                song =>
+                  song.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
+                  artist.name.toLowerCase().includes(searchVal.trim().toLowerCase())
+              )
+            }))
+            .filter(a => a.songs.length > 0);
+
+    // Responsive columns: use 1-6 columns, but default to always 6 on desktop
+    // We'll show only the six filtered (or all) artists in a grid row
 
     return (
       <main
@@ -485,8 +493,7 @@ function Dashboard({ username }) {
           background: COLORS.lightBg,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-start",
+          alignItems: "center"
         }}
       >
         <div
@@ -494,22 +501,23 @@ function Dashboard({ username }) {
             background: "#fff",
             borderRadius: 22,
             boxShadow: "0 4px 32px #f4e2eb2c",
-            maxWidth: 600,
-            width: "97vw",
+            width: "98vw",
+            maxWidth: 1300,
             margin: "35px auto 0",
-            padding: "37px 18px 22px 18px",
+            padding: "36px 24px 30px 24px",
             display: "flex",
             flexDirection: "column",
-            alignItems: "stretch",
+            alignItems: "stretch"
           }}
         >
+          {/* Header row w/back button */}
           <div
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
               gap: 8,
-              marginBottom: 15,
+              marginBottom: 20
             }}
           >
             <h2
@@ -520,10 +528,10 @@ function Dashboard({ username }) {
                 letterSpacing: "0.01em",
                 margin: 0,
                 flex: 1,
-                lineHeight: 1.18,
+                lineHeight: 1.18
               }}
             >
-              {langObj && langObj.label} Artists & Songs
+              {langObj && langObj.label} - Artists
             </h2>
             <button
               className="btn"
@@ -535,124 +543,200 @@ function Dashboard({ username }) {
                 fontWeight: 600,
                 borderRadius: 8,
                 minWidth: 0,
-                fontSize: 16,
+                fontSize: 16
               }}
-              onClick={() => {
-                setSelectedLanguage(null);
-              }}
+              onClick={() => setSelectedLanguage(null)}
             >
               ← Back
             </button>
           </div>
+          {/* Search row */}
           <input
             type="text"
             value={searchVal}
-            onChange={(e) => setSearchVal(e.target.value)}
-            placeholder={`Search artists or songs in ${langObj ? langObj.label : ""}`}
+            onChange={e => setSearchVal(e.target.value)}
+            placeholder={`Search artists in ${langObj ? langObj.label : ""}`}
             className="input"
             style={{
               ...inputStyle,
               background: COLORS.searchBar,
               border: `1.4px solid ${COLORS.primary}`,
               color: COLORS.accent,
-              marginBottom: 19,
-              fontSize: 16,
+              marginBottom: 25,
+              fontSize: 16
             }}
             autoFocus
           />
-          <div>
+          {/* Artist columns row */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(6, 1fr)",
+              gap: 28,
+              marginTop: 3,
+              marginBottom: 8,
+              minHeight: 160,
+              width: "100%"
+            }}
+          >
             {filteredArtists.length === 0 ? (
-              <div style={{ color: "#aaa", fontSize: 15, textAlign: "center" }}>
-                No matching artists or songs found.
+              <div style={{ gridColumn: "span 6", color: "#aaa", fontSize: 15, textAlign: "center" }}>
+                No matching artists found.
               </div>
-            ) : (
-              filteredArtists.map((artist, i) => (
-                <div key={artist.name} style={{
-                  background: COLORS.songCard,
+            ) : filteredArtists.map((artist, i) => (
+              <div
+                key={artist.name}
+                style={{
+                  background: activeArtistIdx === i ? COLORS.primary : COLORS.songCard,
                   borderRadius: 16,
-                  marginBottom: 20,
-                  boxShadow: "0 2px 16px #de92dc20",
-                  padding: "18px 16px 12px 16px"
-                }}>
-                  <div style={{
-                    fontWeight: 700,
-                    color: COLORS.accent,
-                    fontSize: 20,
-                    marginBottom: 8
-                  }}>
-                    {artist.name}
+                  boxShadow: activeArtistIdx === i ? "0 4px 22px #e87a4155" : "0 2px 14px #e87a4122",
+                  border: `2.7px solid ${COLORS.primary}`,
+                  color: activeArtistIdx === i ? COLORS.songCard : COLORS.accent,
+                  padding: "32px 14px 24px 14px",
+                  fontWeight: 700,
+                  fontSize: 19,
+                  textAlign: "center",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                  minHeight: 130,
+                  position: "relative",
+                  outline: activeArtistIdx === i ? "3px solid #fe86d840" : "none"
+                }}
+                tabIndex={0}
+                aria-label={`Show songs for ${artist.name}`}
+                onClick={() => setActiveArtistIdx(i === activeArtistIdx ? null : i)}
+                onKeyPress={e => {
+                  if (e.key === "Enter" || e.key === " ") setActiveArtistIdx(i === activeArtistIdx ? null : i);
+                }}
+              >
+                {artist.name}
+                {activeArtistIdx === i && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      top: 10,
+                      color: COLORS.primary,
+                      fontWeight: 900,
+                      fontSize: 22
+                    }}
+                  >
+                    ↓
                   </div>
-                  <div>
-                    {artist.songs.map(songTitle => {
-                      const songKey = artist.name + "|" + songTitle;
-                      const video = songVideos[songKey];
-                      const error = errorMap[songKey];
-                      const loading = loadingMap[songKey];
-                      return (
-                        <div key={songKey} style={{ display: "flex", alignItems: "flex-start", marginBottom: 15, gap: 12 }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 500, color: COLORS.accent, fontSize: 17 }}>
-                              {songTitle}
-                            </div>
-                            <div style={{ color: "#9c69ad", fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>
-                              {artist.name}
-                            </div>
-                            {/* Lyrics: offer tab if EN/HI */}
-                            {canShowLyrics(selectedLanguage) && (
-                              <LyricsFetcher artist={artist.name} title={songTitle} />
-                            )}
-                          </div>
-                          <div style={{ minWidth: 140, textAlign: "center" }}>
-                            {loading && (
-                              <div style={{ color: "#af78c2", fontSize: 13, marginTop: 9 }}>Loading video...</div>
-                            )}
-                            {!loading && video && video.thumbnail && (
-                              <div
-                                style={{ cursor: "pointer", borderRadius: 8, overflow: "hidden" }}
-                                onClick={() => setOpenPlayers(prev => ({ ...prev, [songKey]: !prev[songKey] }))}
-                                tabIndex={0}
-                                role="button"
-                                aria-label="Show/hide player"
-                              >
-                                <img
-                                  src={video.thumbnail}
-                                  alt={songTitle + " thumbnail"}
-                                  style={{ width: 135, borderRadius: 8, boxShadow: "0 2px 7px #df86e914" }}
-                                />
-                                <div style={{
-                                  fontSize: 13, color: COLORS.primary, background: "rgba(254,134,216,0.04)",
-                                  borderRadius: 7, marginTop: 2, marginBottom: 1
-                                }}>
-                                  {openPlayers[songKey] ? "Hide Video" : "Play Video"}
-                                </div>
-                              </div>
-                            )}
-                            {!loading && !video && (
-                              <div style={{ color: "#e95271", fontSize: 13, marginTop: 7 }}>
-                                {error || "No video found"}
-                              </div>
-                            )}
-                            {openPlayers[songKey] && video && video.videoId && (
-                              <iframe
-                                title={songTitle + " Video"}
-                                width="100%"
-                                height="115"
-                                style={{ borderRadius: 9, marginTop: 6, boxShadow: "0 4px 16px #eaabfd38" }}
-                                src={`https://www.youtube.com/embed/${video.videoId}`}
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                              />
-                            )}
+                )}
+              </div>
+            ))}
+          </div>
+          {/* If an artist is selected, show their songs in a row below */}
+          {typeof activeArtistIdx === "number" && filteredArtists[activeArtistIdx] ? (
+            <div
+              style={{
+                background: COLORS.songCard,
+                borderRadius: 18,
+                marginTop: 30,
+                padding: "34px 22px 16px 22px",
+                boxShadow: "0 6px 28px #eacfef2b"
+              }}
+            >
+              <div
+                style={{
+                  fontWeight: 700,
+                  color: COLORS.primary,
+                  fontSize: 23,
+                  marginBottom: 18,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10
+                }}
+              >
+                <span role="img" aria-label="musical note">🎤️</span>
+                {filteredArtists[activeArtistIdx].name} - Famous Songs
+              </div>
+              {/* SONGS */}
+              {filteredArtists[activeArtistIdx].songs.map((songTitle) => {
+                const songKey = filteredArtists[activeArtistIdx].name + "|" + songTitle;
+                const video = songVideos[songKey];
+                const error = errorMap[songKey];
+                const loading = loadingMap[songKey];
+                return (
+                  <div
+                    key={songKey}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      gap: 26,
+                      marginBottom: 32,
+                      borderBottom: "1.3px solid #efddf8",
+                      paddingBottom: 19
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, color: COLORS.accent, fontSize: 19, marginBottom: 3 }}>
+                        {songTitle}
+                      </div>
+                      <div style={{ color: "#9c69ad", fontSize: 15, fontWeight: 500, marginBottom: 1 }}>
+                        {filteredArtists[activeArtistIdx].name}
+                      </div>
+                      {/* Lyrics for EN/HI only */}
+                      {canShowLyrics(selectedLanguage) && (
+                        <LyricsFetcher artist={filteredArtists[activeArtistIdx].name} title={songTitle} />
+                      )}
+                    </div>
+                    <div style={{ minWidth: 180, textAlign: "center", marginTop: 2 }}>
+                      {loading && <div style={{ color: "#af78c2", fontSize: 15 }}>Loading video...</div>}
+                      {!loading && video && video.thumbnail && (
+                        <div
+                          style={{ cursor: "pointer", borderRadius: 8, overflow: "hidden" }}
+                          onClick={() => setOpenPlayers((prev) => ({ ...prev, [songKey]: !prev[songKey] }))}
+                          tabIndex={0}
+                          role="button"
+                          aria-label="Show/hide player"
+                        >
+                          <img
+                            src={video.thumbnail}
+                            alt={songTitle + " thumbnail"}
+                            style={{
+                              width: 155,
+                              borderRadius: 8,
+                              boxShadow: "0 2px 12px #df86e927",
+                              marginBottom: 5
+                            }}
+                          />
+                          <div
+                            style={{
+                              fontSize: 13,
+                              color: COLORS.primary,
+                              background: "rgba(254,134,216,0.08)",
+                              borderRadius: 7
+                            }}
+                          >
+                            {openPlayers[songKey] ? "Hide Video" : "Play Video"}
                           </div>
                         </div>
-                      );
-                    })}
+                      )}
+                      {!loading && !video && (
+                        <div style={{ color: "#e95271", fontSize: 13, marginTop: 7 }}>
+                          {error || "No video found"}
+                        </div>
+                      )}
+                      {openPlayers[songKey] && video && video.videoId && (
+                        <iframe
+                          title={songTitle + " Video"}
+                          width="100%"
+                          height="134"
+                          style={{ borderRadius: 9, marginTop: 7, boxShadow: "0 9px 18px #eaabfd28" }}
+                          src={`https://www.youtube.com/embed/${video.videoId}`}
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
-            )}
-          </div>
+                );
+              })}
+            </div>
+          ) : null}
         </div>
       </main>
     );
