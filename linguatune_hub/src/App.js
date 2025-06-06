@@ -128,12 +128,59 @@ function makeDemoArtists(langKey) {
       { name: "Srikanth Deva", songs: ["Saravana", "Ulagam Unnai", "Dhanushka", "Madura Veeran", "Kadhal Virus"] }
     ],
     te: [
-      { name: "Devi Sri Prasad", songs: ["Seeti Maar", "Ringa Ringa", "Top Lesi Poddi", "Butta Bomma", "Gabbar Singh Title"] },
-      { name: "Mani Sharma", songs: ["Bommali", "Ninnu Kori Varnam", "Aaradugula Bullet", "Cheliya Cheliya", "Jagadananda Karaka"] },
-      { name: "M. M. Keeravani", songs: ["Baahubali Title Song", "Telusa Telusa", "Oka Pranam", "Kannaa Nidurinchara", "Endhuko Emo"] },
-      { name: "Thaman S", songs: ["Butta Bomma", "Samajavaragamana", "Maguva Maguva", "Oo Antava", "Jinthak Chithak"] },
-      { name: "Gopi Sundar", songs: ["Blockbuster", "Inkem Inkem", "Manohari", "Damaalu Dumeelu", "Buttabomma"] },
-      { name: "Anup Rubens", songs: ["Seetakoka Chiluka", "Chudandi Saaru", "Oka Laila Kosam", "Choopulatho Guchi", "Love Aaj Kal"] }
+      // Cleaned and correct attribution per requirements:
+      // - "Butta Bomma" only under Thaman S, NOT under Devi Sri Prasad or Gopi Sundar.
+      // - "Aaradugula Bullet" only under Devi Sri Prasad.
+      // - "Jagadananda Karaka" removed (traditional/featured by Keeravani, not composed by him nor Mani Sharma).
+      // - "Blockbuster" only under Devi Sri Prasad, NOT Gopi Sundar.
+      // - "Manohari" only under Keeravani, NOT Gopi Sundar.
+      // - "Love Aaj Kal" (Hindi, Pritam) removed from Anup Rubens.
+
+      { name: "Devi Sri Prasad", songs: [
+        "Seeti Maar",
+        "Ringa Ringa",
+        "Top Lesi Poddi",
+        "Gabbar Singh Title",
+        "Aaradugula Bullet",    // Correct placement (Removed from Mani Sharma)
+        "Blockbuster"          // Correct placement (Removed from Gopi Sundar)
+      ]},
+      { name: "Mani Sharma", songs: [
+        "Bommali",
+        "Ninnu Kori Varnam",
+        "Cheliya Cheliya"
+        // Removed "Aaradugula Bullet" (not his song)
+        // Removed "Jagadananda Karaka"
+      ]},
+      { name: "M. M. Keeravani", songs: [
+        "Baahubali Title Song",
+        "Telusa Telusa",
+        "Oka Pranam",
+        "Kannaa Nidurinchara",
+        "Endhuko Emo",
+        "Manohari" // Correct: "Manohari" by Keeravani only
+        // Removed "Jagadananda Karaka"
+      ]},
+      { name: "Thaman S", songs: [
+        "Butta Bomma",          // Kept ONLY under Thaman S, removed from others
+        "Samajavaragamana",
+        "Maguva Maguva",
+        "Oo Antava",
+        "Jinthak Chithak"
+      ]},
+      { name: "Gopi Sundar", songs: [
+        "Inkem Inkem",
+        "Damaalu Dumeelu"
+        // Removed "Blockbuster" (not by Gopi Sundar)
+        // Removed "Manohari" (not by Gopi Sundar)
+        // Removed "Buttabomma" (shouldn't be here or anywhere else)
+      ]},
+      { name: "Anup Rubens", songs: [
+        "Seetakoka Chiluka",
+        "Chudandi Saaru",
+        "Oka Laila Kosam",
+        "Choopulatho Guchi"
+        // Removed "Love Aaj Kal" (not Telugu, not by him)
+      ]}
     ],
     ml: [
       { name: "M. Jayachandran", songs: ["Poomuthole", "Olanjali Kuruvi", "Mazhaye Mazhaye", "Mizhiyithalil Kanneer", "Aararo"] },
