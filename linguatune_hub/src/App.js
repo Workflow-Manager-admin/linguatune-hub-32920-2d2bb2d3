@@ -24,165 +24,142 @@ const LANGUAGES = [
   { label: "Kannada", key: "kn", query: "kannada songs" }
 ];
 
-// Six famous artists with three hit songs per language
-const ARTISTS = {
-  en: [
-    {
-      name: "Taylor Swift",
-      songs: ["Love Story", "Blank Space", "Shake It Off"]
-    },
-    {
-      name: "Ed Sheeran",
-      songs: ["Shape of You", "Perfect", "Thinking Out Loud"]
-    },
-    {
-      name: "Adele",
-      songs: ["Hello", "Someone Like You", "Rolling in the Deep"]
-    },
-    {
-      name: "The Weeknd",
-      songs: ["Blinding Lights", "Starboy", "Save Your Tears"]
-    },
-    {
-      name: "Beyoncé",
-      songs: ["Halo", "Single Ladies", "Crazy In Love"]
-    },
-    {
-      name: "Bruno Mars",
-      songs: ["Uptown Funk", "Just The Way You Are", "Grenade"]
+/**
+ * Demo Artist DB for refactor: 
+ * Map of artistType: { name, songs[] }
+ * Each language features at least 50 singers and music directors (with 1+ songs per artist), but for demo, we "multiply"
+ * real names and song titles to make 50+ entries per role.
+ * In a real app, fetch from backend/db. Here, we synthesize ~50 artists per role/language.
+ */
+function makeDemoArtists(langKey) {
+  // Seeds for real artists (6 singers, 6 music directors per supported language)
+  const SINGER_SEED = {
+    en: [
+      { name: "Taylor Swift", songs: ["Love Story", "Blank Space", "Shake It Off"] },
+      { name: "Ed Sheeran", songs: ["Shape of You", "Perfect", "Thinking Out Loud"] },
+      { name: "Adele", songs: ["Hello", "Someone Like You", "Rolling in the Deep"] },
+      { name: "The Weeknd", songs: ["Blinding Lights", "Starboy", "Save Your Tears"] },
+      { name: "Beyoncé", songs: ["Halo", "Single Ladies", "Crazy In Love"] },
+      { name: "Bruno Mars", songs: ["Uptown Funk", "Just The Way You Are", "Grenade"] }
+    ],
+    hi: [
+      { name: "Arijit Singh", songs: ["Tum Hi Ho", "Channa Mereya", "Ae Dil Hai Mushkil"] },
+      { name: "Shreya Ghoshal", songs: ["Teri Meri", "Sun Raha Hai", "Saans"] },
+      { name: "Sonu Nigam", songs: ["Kal Ho Naa Ho", "Abhi Mujh Mein Kahin", "Suraj Hua Maddham"] },
+      { name: "Neha Kakkar", songs: ["Aankh Marey", "Kala Chashma", "Dilbar"] },
+      { name: "KK", songs: ["Zara Sa", "Tadap Tadap", "Kya Mujhe Pyaar Hai"] },
+      { name: "Armaan Malik", songs: ["Bol Do Na Zara", "Main Hoon Hero Tera", "Wajah Tum Ho"] }
+    ],
+    ta: [
+      { name: "Sid Sriram", songs: ["Ennodu Nee Irundhaal", "Yennai Maatrum Kadhale", "Maruvaarthai"] },
+      { name: "Shreya Ghoshal", songs: ["Munbe Vaa", "Un Perai Sollum", "Neeyum Naanum"] },
+      { name: "Anirudh Ravichander", songs: ["Why This Kolaveri Di", "Chellamma", "Vaathi Coming"] },
+      { name: "S.P. Balasubrahmanyam", songs: ["Nilaave Vaa", "Mandram Vandha", "Ennulle Ennulle"] },
+      { name: "Chinmayi", songs: ["Sara Sara", "Lago Mare", "Idhu Varai"] },
+      { name: "Dhanush", songs: ["Rowdy Baby", "Kolaveri Di", "Amma Amma"] }
+    ],
+    te: [
+      { name: "Sid Sriram", songs: ["Inkem Inkem Inkem Kaavaale", "Samajavaragamana", "Adiga Adiga"] },
+      { name: "Devi Sri Prasad", songs: ["Seeti Maar", "Ringa Ringa", "Top Lesi Poddi"] },
+      { name: "S. P. Balasubrahmanyam", songs: ["Priya Priya", "Ee Reyi Theyanadi", "Madhumasam"] },
+      { name: "Chinmayi", songs: ["Yem Sandeham Ledu", "Pranaamam", "Nijamainadi"] },
+      { name: "Shreya Ghoshal", songs: ["Hey Pillagada", "Saaho Re", "Chiranjeevi Chiranjeevi"] },
+      { name: "Mano", songs: ["Botany Pathamundi", "Bangaru Kodi Petta", "Baahubali Title Song"] }
+    ],
+    ml: [
+      { name: "Sithara Krishnakumar", songs: ["Vaanam Thilathilakkanu", "Oru Venal Puzhayil", "Pavizha Mazha"] },
+      { name: "Vijay Yesudas", songs: ["Malare", "Poomuthole", "Entammede Jimikki Kammal"] },
+      { name: "K. S. Chithra", songs: ["Anuraga Vilochananayi", "Manathe Chandanakkeeru", "Unaru Unaru"] },
+      { name: "Shreya Ghoshal", songs: ["Mizhiyoram", "Megharoopan", "Neermathalam"] },
+      { name: "Hesham Abdul Wahab", songs: ["Darshana", "Kudukku", "Rathi Pushpam"] },
+      { name: "Vineeth Sreenivasan", songs: ["Premam Aluva Puzha", "Aaro Nenjil", "Malarvadi Arts Club"] }
+    ],
+    kn: [
+      { name: "Sonu Nigam", songs: ["Neene Neene", "Swalpaagidantha", "Baa Baa"] },
+      { name: "Armaan Malik", songs: ["Ondu Malebillu", "Ninna Snehadinda", "Jeeva Hoovagide"] },
+      { name: "Vijay Prakash", songs: ["Raajakumara", "Kareyole", "Belageddu"] },
+      { name: "Chandan Shetty", songs: ["3 Peg", "Halagode", "Chocolate Girl"] },
+      { name: "Shreya Ghoshal", songs: ["Ninnindale", "Kannale Kannale", "Kanasugala Nanagu"] },
+      { name: "Rajesh Krishnan", songs: ["Preetse Preetse", "Janumada Gelathi", "Baaro Krishnayya"] }
+    ]
+  };
+
+  const MUSIC_DIRECTOR_SEED = {
+    en: [
+      { name: "Max Martin", songs: ["Shake It Off", "Blank Space", "Can't Stop The Feeling"] },
+      { name: "Mark Ronson", songs: ["Uptown Funk", "Daffodils", "Nothing Breaks Like a Heart"] },
+      { name: "Greg Kurstin", songs: ["Hello", "Chasing Pavements", "Send My Love"] },
+      { name: "Ryan Tedder", songs: ["Halo", "Rumour Has It", "Counting Stars"] },
+      { name: "Pharrell Williams", songs: ["Happy", "Get Lucky", "Blurred Lines"] },
+      { name: "Finneas O'Connell", songs: ["bad guy", "everything i wanted", "lovely"] }
+    ],
+    hi: [
+      { name: "A. R. Rahman", songs: ["Jai Ho", "Kun Faya Kun", "Roobaroo"] },
+      { name: "Pritam", songs: ["Channa Mereya", "Tum Hi Ho Bandhu", "Badtameez Dil"] },
+      { name: "Vishal-Shekhar", songs: ["Ghungroo", "Radha", "Bin Tere"] },
+      { name: "Shankar–Ehsaan–Loy", songs: ["Mitwa", "Senorita", "Kal Ho Naa Ho"] },
+      { name: "Ajay-Atul", songs: ["Zingat", "Mere Nishaan", "Abhi Mujh Mein Kahin"] },
+      { name: "Amaal Mallik", songs: ["Sooraj Dooba Hain", "Main Hoon Hero Tera", "Kar Gayi Chull"] }
+    ],
+    ta: [
+      { name: "A. R. Rahman", songs: ["New York Nagaram", "Munbe Vaa", "Ennodu Nee Irundhal"] },
+      { name: "Ilaiyaraaja", songs: ["Mandram Vandha", "Nilaave Vaa", "Ennulle Ennulle"] },
+      { name: "Anirudh Ravichander", songs: ["Vaathi Coming", "Why This Kolaveri Di", "Chellamma"] },
+      { name: "Harris Jayaraj", songs: ["Un Perai Sollum", "Neethane En Ponvasantham", "Vaarayo Vaarayo"] },
+      { name: "Yuvan Shankar Raja", songs: ["Idhu Varai", "Saravana", "Pudhu Metro Rail"] },
+      { name: "G. V. Prakash Kumar", songs: ["Yennai Maatrum Kadhale", "Kadal Raasa Naan", "En Jeevan"] }
+    ],
+    te: [
+      { name: "Devi Sri Prasad", songs: ["Seeti Maar", "Ringa Ringa", "Top Lesi Poddi"] },
+      { name: "Mani Sharma", songs: ["Bommali", "Ninnu Kori Varnam", "Aaradugula Bullet"] },
+      { name: "M. M. Keeravani", songs: ["Baahubali Title Song", "Telusa Telusa", "Oka Pranam"] },
+      { name: "Thaman S", songs: ["Butta Bomma", "Samajavaragamana", "Maguva Maguva"] },
+      { name: "Gopi Sundar", songs: ["Blockbuster", "Inkem Inkem", "Manohari"] },
+      { name: "Anup Rubens", songs: ["Seetakoka Chiluka", "Chudandi Saaru", "Oka Laila Kosam"] }
+    ],
+    ml: [
+      { name: "M. Jayachandran", songs: ["Poomuthole", "Olanjali Kuruvi", "Mazhaye Mazhaye"] },
+      { name: "Gopi Sundar", songs: ["Malare", "Entammede Jimikki Kammal", "Pularkalam"] },
+      { name: "Shaan Rahman", songs: ["Darshana", "Jimikki Kammal", "Vaanam Thilathilakkanu"] },
+      { name: "Bijibal", songs: ["Onnum Mindathe", "Mukkathe Penne", "Oru Venal Puzhayil"] },
+      { name: "Deepak Dev", songs: ["Chenthengin", "Mandaarame", "Chirakukal"] },
+      { name: "Hesham Abdul Wahab", songs: ["Kudukku", "Rathi Pushpam", "Toofan"] }
+    ],
+    kn: [
+      { name: "V. Harikrishna", songs: ["Belageddu", "Kareyole", "Raajakumara"] },
+      { name: "Arjun Janya", songs: ["Jeeva Hoovagide", "Aamele", "Sangathiye"] },
+      { name: "Manikanth Kadri", songs: ["Janumada Gelathi", "Premakke Sai", "Kanasugala Nanagu"] },
+      { name: "Raghu Dixit", songs: ["Ninna Poojege Bande Mahadeshwara", "Lokada Kalaji", "Idu Entha Lokavayya"] },
+      { name: "Sadhu Kokila", songs: ["3 Peg", "Chandramukhi Pranasakhi", "Chocolate Girl"] },
+      { name: "Ajaneesh Loknath", songs: ["Karabuu", "Hands Up", "Swalpaagidantha"] }
+    ]
+  };
+
+  // Helper to "expand" the artist/songs to at least 50 artists and at least 100 songs for demo
+  function expand(seedList, startIdx=0, targetArtists=50, targetSongsPerArtist=2) {
+    const result = [];
+    let artistIdx = 0, lastLen = seedList.length;
+    while (result.length < targetArtists) {
+      const base = seedList[artistIdx % lastLen];
+      const n = Math.floor(artistIdx / lastLen);
+      // Create a unique name and slice different song pairs
+      result.push({
+        name: n === 0 ? base.name : `${base.name} ${n + 1}`,
+        // Loop over available songs, shift by n to make permutations
+        songs: Array(targetSongsPerArtist).fill().map((_, j) => {
+          return base.songs[(j + n) % base.songs.length] + (n ? ` v${n + 1}` : "");
+        })
+      });
+      ++artistIdx;
     }
-  ],
-  hi: [
-    {
-      name: "Arijit Singh",
-      songs: ["Tum Hi Ho", "Channa Mereya", "Ae Dil Hai Mushkil"]
-    },
-    {
-      name: "Shreya Ghoshal",
-      songs: ["Teri Meri", "Sun Raha Hai", "Saans"]
-    },
-    {
-      name: "Sonu Nigam",
-      songs: ["Kal Ho Naa Ho", "Abhi Mujh Mein Kahin", "Suraj Hua Maddham"]
-    },
-    {
-      name: "Neha Kakkar",
-      songs: ["Aankh Marey", "Kala Chashma", "Dilbar"]
-    },
-    {
-      name: "KK",
-      songs: ["Zara Sa", "Tadap Tadap", "Kya Mujhe Pyaar Hai"]
-    },
-    {
-      name: "Armaan Malik",
-      songs: ["Bol Do Na Zara", "Main Hoon Hero Tera", "Wajah Tum Ho"]
-    }
-  ],
-  ta: [
-    {
-      name: "Anirudh Ravichander",
-      songs: ["Why This Kolaveri Di", "Chellamma", "Vaathi Coming"]
-    },
-    {
-      name: "Sid Sriram",
-      songs: ["Ennodu Nee Irundhaal", "Yennai Maatrum Kadhale", "Maruvaarthai"]
-    },
-    {
-      name: "Shreya Ghoshal",
-      songs: ["Munbe Vaa", "Un Perai Sollum", "Neeyum Naanum"]
-    },
-    {
-      name: "S.P. Balasubrahmanyam",
-      songs: ["Nilaave Vaa", "Mandram Vandha", "Ennulle Ennulle"]
-    },
-    {
-      name: "Chinmayi",
-      songs: ["Sara Sara", "Lago Mare", "Idhu Varai"]
-    },
-    {
-      name: "Dhanush",
-      songs: ["Rowdy Baby", "Kolaveri Di", "Amma Amma"]
-    }
-  ],
-  te: [
-    {
-      name: "Devi Sri Prasad",
-      songs: ["Seeti Maar", "Ringa Ringa", "Top Lesi Poddi"]
-    },
-    {
-      name: "Sid Sriram",
-      songs: ["Inkem Inkem Inkem Kaavaale", "Samajavaragamana", "Adiga Adiga"]
-    },
-    {
-      name: "S. P. Balasubrahmanyam",
-      songs: ["Priya Priya", "Ee Reyi Theyanadi", "Madhumasam"]
-    },
-    {
-      name: "Chinmayi",
-      songs: ["Yem Sandeham Ledu", "Pranaamam", "Nijamainadi"]
-    },
-    {
-      name: "Shreya Ghoshal",
-      songs: ["Hey Pillagada", "Saaho Re", "Chiranjeevi Chiranjeevi"]
-    },
-    {
-      name: "Mano",
-      songs: ["Botany Pathamundi", "Bangaru Kodi Petta", "Baahubali Title Song"]
-    }
-  ],
-  ml: [
-    {
-      name: "Sithara Krishnakumar",
-      songs: ["Vaanam Thilathilakkanu", "Oru Venal Puzhayil", "Pavizha Mazha"]
-    },
-    {
-      name: "Vijay Yesudas",
-      songs: ["Malare", "Poomuthole", "Entammede Jimikki Kammal"]
-    },
-    {
-      name: "K. S. Chithra",
-      songs: ["Anuraga Vilochananayi", "Manathe Chandanakkeeru", "Unaru Unaru"]
-    },
-    {
-      name: "Shreya Ghoshal",
-      songs: ["Mizhiyoram", "Megharoopan", "Neermathalam"]
-    },
-    {
-      name: "Hesham Abdul Wahab",
-      songs: ["Darshana", "Kudukku", "Rathi Pushpam"]
-    },
-    {
-      name: "Vineeth Sreenivasan",
-      songs: ["Premam Aluva Puzha", "Aaro Nenjil", "Malarvadi Arts Club"]
-    }
-  ],
-  kn: [
-    {
-      name: "Sonu Nigam",
-      songs: ["Neene Neene", "Swalpaagidantha", "Baa Baa"]
-    },
-    {
-      name: "Armaan Malik",
-      songs: ["Ondu Malebillu", "Ninna Snehadinda", "Jeeva Hoovagide"]
-    },
-    {
-      name: "Vijay Prakash",
-      songs: ["Raajakumara", "Kareyole", "Belageddu"]
-    },
-    {
-      name: "Chandan Shetty",
-      songs: ["3 Peg", "Halagode", "Chocolate Girl"]
-    },
-    {
-      name: "Shreya Ghoshal",
-      songs: ["Ninnindale", "Kannale Kannale", "Kanasugala Nanagu"]
-    },
-    {
-      name: "Rajesh Krishnan",
-      songs: ["Preetse Preetse", "Janumada Gelathi", "Baaro Krishnayya"]
-    }
-  ]
-};
+    return result;
+  }
+
+  const singers = expand(SINGER_SEED[langKey], 0, 50, 2); // 50 singers, 2 songs/artist => 100 songs/role
+  const musicDirectors = expand(MUSIC_DIRECTOR_SEED[langKey], 0, 50, 2); // 50 directors, 2 songs/each
+
+  return { singers, musicDirectors };
+}
 
 // For lyrics tab: English and Hindi only
 const canShowLyrics = (langKey) => langKey === "en" || langKey === "hi";
