@@ -1553,6 +1553,7 @@ export default App;
   return content;
 }
 
+export default App;
 // LyricsFetcher: Fetch lyrics for EN/HI if available and show a "Show Lyrics" expandable tab
 function LyricsFetcher({ artist, title }) {
   const [open, setOpen] = useState(false);
