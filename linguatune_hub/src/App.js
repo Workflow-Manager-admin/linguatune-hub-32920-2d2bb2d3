@@ -23,15 +23,9 @@ const LANGUAGES = [
 /**
  * Demo Artist DB for refactor: 
  * Map of artistType: { name, songs[] }
- * Each language features at least 50 singers and music directors (with 1+ songs per artist), but for demo, we "multiply"
- * real names and song titles to make 50+ entries per role.
  * In a real app, fetch from backend/db. Here, we synthesize ~50 artists per role/language.
  */
 function makeDemoArtists(langKey) {
-  // Define unique, real, and prominent artists for each language.
-  // Each artist appears only once; all available songs for each are listed under their card.
-
-  // --- Refactored Telugu singers & attribution logic with clarifying UI notes for collaborative/minor roles ---
   const SINGER_SEED = {
     en: [
       { name: "Taylor Swift", songs: ["Love Story", "Cardigan", "Blank Space", "Shake It Off", "Cruel Summer"] },
@@ -41,111 +35,13 @@ function makeDemoArtists(langKey) {
       { name: "Beyoncé", songs: ["Halo", "Single Ladies", "Crazy In Love", "Irreplaceable", "Love On Top"] },
       { name: "The Weeknd", songs: ["Blinding Lights", "Starboy", "Save Your Tears", "Can't Feel My Face", "Earned It"] }
     ],
-    hi: [
-      { name: "Arijit Singh", songs: ["Tum Hi Ho", "Channa Mereya", "Ae Dil Hai Mushkil", "Raabta", "Muskurane"] },
-      { name: "Shreya Ghoshal", songs: ["Teri Meri", "Sun Raha Hai", "Saans", "Agar Tum Mil Jao", "Param Sundari"] },
-      { name: "Sonu Nigam", songs: ["Kal Ho Naa Ho", "Abhi Mujh Mein Kahin", "Suraj Hua Maddham", "Panchi Nadiyan", "Do Pal"] },
-      { name: "Neha Kakkar", songs: ["Aankh Marey", "Kala Chashma", "Dilbar", "Garmi", "Nikle Currant"] },
-      { name: "KK", songs: ["Zara Sa", "Tadap Tadap", "Kya Mujhe Pyaar Hai", "Yaaron", "Alvida"] },
-      { name: "Armaan Malik", songs: ["Bol Do Na Zara", "Main Hoon Hero Tera", "Wajah Tum Ho", "Control", "Tere Mere"] }
-    ],
     ta: [
-      // Sean Roldan: remove 'Maara Theme' and 'Kannaana Kanney'
       { name: "Sean Roldan", songs: ["Vaanam Kottattum", "Pariyerum Perumal Theme", "Mayakka Ponna"] },
-      // Pradeep Kumar: remove 'Yaanji'
       { name: "Pradeep Kumar", songs: ["Aagayam Theepidicha", "Maya Nadhi", "Naan Nee", "Kannamma"] },
       { name: "Dhanush", songs: ["Rowdy Baby", "Kolaveri Di", "Amma Amma", "Po Indru Neeyaga", "Thulli Thulli"] },
       { name: "Karthik", songs: ["Ava Enna", "Unakkena Iruppen", "Usure Pogudhey", "Oru Naalil", "Vizhi Moodi"] },
       { name: "Sid Sriram", songs: ["Ennodu Nee Irundhaal", "Maruvaarthai", "Thalli Pogathey", "Unakku Thaan", "Adiye"] },
-      // Chinmayi: remove 'Idhu Varai', 'Un Perai Sollum', 'Lago Mare'
       { name: "Chinmayi", songs: ["Sara Sara", "Oh Penne"] }
-    ],
-    te: [
-      // Telugu singer-song attributions corrected
-      { name: "Sid Sriram", songs: ["Samajavaragamana", "Inkem Inkem Inkem Kaavaale", "Manasa", "Chiranjeevi Chiranjeevi"] },
-      { name: "Anurag Kulkarni", songs: ["Pilla Raa"] },
-      { name: "Ramya Behara", songs: ["Adiga Adiga"] },
-      { name: "Shreya Ghoshal", songs: ["Saaho Re", "Hey Pillagada", "Ye Chota Nuvvunna"] },
-      { name: "Sunitha", songs: ["Naa Manasuki", "Mamathala Thalli", "Nee Kallalona", "Yevaro", "Vintunnava", "Neeli Neeli Akasam"] },
-      { name: "Chinmayi", songs: ["Yem Sandeham Ledu", "Pranaamam", "Nijamainadi", "Darshana", "Kanulanu Thaake"] },
-      // Oo Antava credited to Indravathi Chauhan, not Mangli; Mangli's role in Ramuloo Ramulaa clarified by UI note (see below)
-      { name: "Mangli", songs: ["Saranga Dariya", "Bullet Bandi", "Ramuloo Ramulaa", "Gangavva Song"] }, // extra - UI note for Ramuloo Ramulaa
-      { name: "Indravathi Chauhan", songs: ["Oo Antava"] }
-    ],
-    ml: [
-      // Sithara Krishnakumar: Only authentic solos/duets she performed. Example: "Vaanam Thilathilakkanu" (Uyare), "Pavizha Mazha" (Athiran), "Oru Venal Puzhayil", "Ee Shishirakaalam", "Rahasyamay" (duet, Kuruthi) etc.
-      { 
-        name: "Sithara Krishnakumar", 
-        songs: [
-          "Vaanam Thilathilakkanu", // Uyare, solo
-          "Pavizha Mazha", // Athiran, solo
-          "Oru Venal Puzhayil", // Summer in Bethlehem, actual attribution
-          "Ee Shishirakaalam", // Mayanadhi, duet with Shahabaz Aman
-          "Rahasyamay (duet)" // Kuruthi, duet with Zia Ul Haq
-        ]
-      },
-      // Vijay Yesudas: Only iconic hits as main singer. Remove devotional/uncertain; keep "Malare", "Jimikki Kammal".
-      { 
-        name: "Vijay Yesudas", 
-        songs: [
-          "Malare", // Premam
-          "Entammede Jimikki Kammal", // Velipadinte Pusthakam
-          "Omal Kanmani", // Mayavi, love duet, he is male lead (w/ Sujatha)
-          "Thaniye Mizhikal (duet)", // Bhaskar The Rascal, with Shreya Ghoshal
-          "Poomuthole" // Joseph, lead vocal (confirmed)
-        ]
-      },
-      // K. S. Chithra: Only confirmed songs, mark/clarify duet/alternate as needed.
-      {
-        name: "K. S. Chithra",
-        songs: [
-          "Manathe Chandanakkeeru", // Unnikkale Oru Kadha Parayam, solo
-          "Unaru Unaru", // 'Unaru' film, solo
-          "Aalolam", // 'Chamayam', solo
-          "Vellarika (duet with M. G. Sreekumar)", // Ayal Kadha Ezhuthukayanu, mark as duet
-          "Manathe Chandanakkeeru (1987 ver.)" // sometimes duet, specify alternate
-        ]
-      },
-      // Hesham Abdul Wahab: Indicate singer/composer only, clarify role.
-      {
-        name: "Hesham Abdul Wahab",
-        songs: [
-          "Darshana (singer & composer)", // Hridayam, main male singer & composer
-          "Kudukku (composer only)",      // Bro Daddy, sung by Vineeth Sreenivasan & MG Sreekumar
-          "Rathi Pushpam (composer/singer)", // Auto, both
-          "Mayilpeeli (composer only)",   // Ayisha, sung by KS Chithra et al
-          "Thaarame Thaarame (composer only)" // Ishq, composer; sung by Sid Sriram
-        ]
-      },
-      // Vineeth Sreenivasan: Review, mainly keep main hits
-      {
-        name: "Vineeth Sreenivasan",
-        songs: [
-          "Premam Aluva Puzha", // Premam
-          "Aaro Nenjil", // Thattathin Marayathu
-          "Malarvadi Arts Club", // Title song
-          "Palavattam", // Chappa Kurishu
-          "Thudakkam Mangalyam" // Bangalore Days
-        ]
-      },
-      // Shreya Ghoshal: Remove lesser-knowns, keep only most widely known/real
-      {
-        name: "Shreya Ghoshal",
-        songs: [
-          "Chanthu Thottille (duet)", // Banaras, duet with Vijay Yesudas
-          "Mandharacheppundo (duet)", // Dasharatham, duet with P. Jayachandran (flag if alternate, else omit)
-          // Mark: Any Malayalam song here features her only if confirmed major appearance.
-        ]
-      }
-    ],
-    kn: [
-      { name: "Sonu Nigam", songs: ["Neene Neene", "Swalpaagidantha", "Baa Baa", "Ee Sanje Yaakaagide", "Nenapirali"] },
-      { name: "Vijay Prakash", songs: ["Raajakumara", "Kareyole", "Belageddu", "Kanasu", "Mungaru Male"] },
-      // Only genuine Kannada songs sung by Armaan Malik
-      { name: "Armaan Malik", songs: ["Ondu Malebillu", "Ninna Snehadinda", "Jeeva Hoovagide"] },
-      { name: "Chandan Shetty", songs: ["3 Peg", "Halagode", "Chocolate Girl", "Geetha", "Fire"] },
-      { name: "Shreya Ghoshal", songs: ["Ninnindale", "Kannale Kannale", "Kanasugala Nanagu", "Edeya Doora", "Sundari"] },
-      { name: "Rajesh Krishnan", songs: ["Preetse Preetse", "Janumada Gelathi", "Baaro Krishnayya", "Madhura Pisumaatige", "Baare Baare"] }
     ]
   };
 
@@ -158,121 +54,18 @@ function makeDemoArtists(langKey) {
       { name: "Pharrell Williams", songs: ["Happy", "Get Lucky", "Blurred Lines", "Freedom", "Frontin'"] },
       { name: "Finneas O'Connell", songs: ["bad guy", "everything i wanted", "lovely", "When the Party's Over", "Bury a Friend"] }
     ],
-    hi: [
-      { name: "A. R. Rahman", songs: ["Jai Ho", "Kun Faya Kun", "Roobaroo", "Dil Se Re", "Tere Bina", "Agar Tum Saath Ho"] },
-      { name: "Pritam", songs: ["Channa Mereya", "Tum Hi Ho Bandhu", "Badtameez Dil", "Gerua"] },
-      { name: "Vishal-Shekhar", songs: ["Ghungroo", "Radha", "Bin Tere", "Balam Pichkari", "Desi Girl"] },
-      { name: "Shankar–Ehsaan–Loy", songs: ["Mitwa", "Senorita", "Kal Ho Naa Ho", "Gallan Goodiyaan", "Sapno Se Bhare"] },
-      { name: "Ajay-Atul", songs: ["Zingat", "Mere Nishaan", "Abhi Mujh Mein Kahin", "Apsara Aali", "Sairat Zaala Ji"] },
-      { name: "Amaal Mallik", songs: ["Sooraj Dooba Hain", "Main Hoon Hero Tera", "Kar Gayi Chull", "Naina", "Gulabi 2.0"] }
-    ],
     ta: [
-      // Ilaiyaraaja only his own true hits; include En Iniya Pon Nilave here, remove from Yuvan
       { name: "Ilaiyaraaja", songs: ["Mandram Vandha", "Nilaave Vaa", "Ennulle Ennulle", "Anandha Raagam", "Valaiyosai", "En Iniya Pon Nilave"] },
       { name: "A. R. Rahman", songs: ["New York Nagaram", "Munbe Vaa", "Ennodu Nee Irundhal", "Uyire Uyire", "Vennilave Vennilave"] },
       { name: "Anirudh Ravichander", songs: ["Vaathi Coming", "Why This Kolaveri Di", "Chellamma", "Kaadhal Kan Kattudhe", "Neeyum Naanum"] },
-      // Sean Roldan: Correct list, do not include 'Maara Theme' or 'Kannaana Kanney'
       { name: "Sean Roldan", songs: ["Vaanam Kottattum", "Mayakka Ponna", "Paraak Paraak", "Kaalam Ingu Sari Illai"] },
-      // Ghibran: add 'Maara Theme'
       { name: "Ghibran", songs: ["Maara Theme", "Sara Sara", "Vikram Title Track", "Neeye", "Raja Raja Chozhan"] },
-      // D. Imman: add 'Kannaana Kanney'
       { name: "D. Imman", songs: ["Kannaana Kanney"] },
       { name: "Harris Jayaraj", songs: ["Un Perai Sollum", "Neethane En Ponvasantham", "Vaarayo Vaarayo", "Vaseegara", "Uyirin Uyire"] },
-      // Saravana should be only under Srikanth Deva, remove from Yuvan
       { name: "Yuvan Shankar Raja", songs: ["Idhu Varai", "Pudhu Metro Rail", "Ninaithu Ninaithu"] },
       { name: "Srikanth Deva", songs: ["Saravana", "Ulagam Unnai", "Dhanushka", "Madura Veeran", "Kadhal Virus"] }
-    ],
-    te: [
-      // Cleaned and correct attribution per requirements:
-      // - "Butta Bomma" only under Thaman S, NOT under Devi Sri Prasad or Gopi Sundar.
-      // - "Aaradugula Bullet" only under Devi Sri Prasad.
-      // - "Jagadananda Karaka" removed (traditional/featured by Keeravani, not composed by him nor Mani Sharma).
-      // - "Blockbuster" only under Devi Sri Prasad, NOT Gopi Sundar.
-      // - "Manohari" only under Keeravani, NOT Gopi Sundar.
-      // - "Love Aaj Kal" (Hindi, Pritam) removed from Anup Rubens.
-
-      { name: "Devi Sri Prasad", songs: [
-        "Seeti Maar",
-        "Ringa Ringa",
-        "Top Lesi Poddi",
-        "Gabbar Singh Title",
-        "Aaradugula Bullet",    // Correct placement (Removed from Mani Sharma)
-        "Blockbuster"          // Correct placement (Removed from Gopi Sundar)
-      ]},
-      { name: "Mani Sharma", songs: [
-        "Bommali",
-        "Ninnu Kori Varnam",
-        "Cheliya Cheliya"
-        // Removed "Aaradugula Bullet" (not his song)
-        // Removed "Jagadananda Karaka"
-      ]},
-      { name: "M. M. Keeravani", songs: [
-        "Baahubali Title Song",
-        "Telusa Telusa",
-        "Oka Pranam",
-        "Kannaa Nidurinchara",
-        "Endhuko Emo",
-        "Manohari" // Correct: "Manohari" by Keeravani only
-        // Removed "Jagadananda Karaka"
-      ]},
-      { name: "Thaman S", songs: [
-        "Butta Bomma",          // Kept ONLY under Thaman S, removed from others
-        "Samajavaragamana",
-        "Maguva Maguva",
-        "Oo Antava",
-        "Jinthak Chithak"
-      ]},
-      { name: "Gopi Sundar", songs: [
-        "Inkem Inkem",
-        "Damaalu Dumeelu"
-        // Removed "Blockbuster" (not by Gopi Sundar)
-        // Removed "Manohari" (not by Gopi Sundar)
-        // Removed "Buttabomma" (shouldn't be here or anywhere else)
-      ]},
-      { name: "Anup Rubens", songs: [
-        "Seetakoka Chiluka",
-        "Chudandi Saaru",
-        "Oka Laila Kosam",
-        "Choopulatho Guchi"
-        // Removed "Love Aaj Kal" (not Telugu, not by him)
-      ]}
-    ],
-    ml: [
-      { name: "M. Jayachandran", songs: ["Poomuthole", "Olanjali Kuruvi", "Mazhaye Mazhaye", "Mizhiyithalil Kanneer", "Aararo"] },
-      // Gopi Sundar: Remove 'Malare' and 'Jimikki Kammal' (neither are his compositions)
-      { name: "Gopi Sundar", songs: ["Pularkalam", "Aarodum Parayuka", "Pavizha Mazha"] },
-      // Shaan Rahman: Retain ONLY 'Jimikki Kammal'
-      { name: "Shaan Rahman", songs: ["Jimikki Kammal"] },
-      // Bijibal: Remove 'Oru Venal Puzhayil' (not his composition)
-      { name: "Bijibal", songs: ["Onnum Mindathe", "Mukkathe Penne", "Mazha Paadum", "Megham Poothu Thudangi"] },
-      // Deepak Dev: Keep as is (already correct major hits)
-      { name: "Deepak Dev", songs: ["Chenthengin", "Mandaarame", "Chirakukal", "Pathirayo Pakalai", "Mazhamegha"] },
-      // Hesham Abdul Wahab: Only 'Darshana' (composer and singer). Remove others (incorrectly attributed).
-      { name: "Hesham Abdul Wahab", songs: ["Darshana"] }
-    ],
-    kn: [
-      { name: "V. Harikrishna", songs: ["Belageddu", "Kareyole", "Raajakumara", "Ninna Snehadinda", "Simple Agi Ondh Love Story"] },
-      { name: "Arjun Janya", songs: ["Jeeva Hoovagide", "Aamele", "Sangathiye", "Ninna Nodalento", "Kurudu Kanchana"] },
-      { name: "Manikanth Kadri", songs: ["Janumada Gelathi", "Premakke Sai", "Kanasugala Nanagu", "Ondu Malebillu", "Anthintha Heluve"] },
-      { name: "Raghu Dixit", songs: ["Ninna Poojege Bande Mahadeshwara", "Lokada Kalaji", "Idu Entha Lokavayya", "Jag Changa", "Gudi Gudiya"] },
-      { name: "Sadhu Kokila", songs: ["Chandramukhi Pranasakhi", "Thirboki Jeevana", "Haago Niliya"] },
-      { name: "Ajaneesh Loknath", songs: ["Karabuu", "Hands Up", "Swalpaagidantha", "Shaakuntle Sikkalu", "Neenaade Naa"] }
     ]
   };
-
-  // No duplicate/numbered artists; deduplication is inherent in the above lists.
-  // Each artist is unique, all songs per artist go together.
-
-  /**
-   * Helper: ensure only allowed songs are in the artist's list (for future-proofing data integrity).
-   * Checks a provided attribution list against a canonical allowed list for each composer.
-   * Usage: Pass canonicalSongMap and check on UI render or during seeds update.
-   */
-  function validateComposerSongs(artistName, songs, canonicalMap) {
-    // canonicalMap: { [composerName]: Set([...songs]) }
-    if (!canonicalMap || !canonicalMap[artistName]) return songs;
-    return songs.filter(song => canonicalMap[artistName].has(song));
-  }
 
   return {
     singers: SINGER_SEED[langKey] || [],
@@ -280,15 +73,12 @@ function makeDemoArtists(langKey) {
   };
 }
 
+// Lyrics tab: now only English (en)
 const canShowLyrics = (langKey) => langKey === "en";
 
 function fakeAuth({ username, password, isSignup }) {
-  // Simple mock authentication – always succeeds if non-empty
   if (username.trim() && password.trim()) {
-    return {
-      username,
-      // For demo purposes, not for real auth!
-    };
+    return { username };
   }
   return null;
 }
@@ -373,7 +163,7 @@ function Navbar({ isAuth, user, onLogout }) {
 
 // PUBLIC_INTERFACE
 function AuthForm({ onAuthComplete }) {
-  const [form, setForm] = useState("login"); // or "signup"
+  const [form, setForm] = useState("login");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
   const [fields, setFields] = useState({ username: "", password: "" });
@@ -503,33 +293,25 @@ function AuthForm({ onAuthComplete }) {
 
 /* PUBLIC_INTERFACE - Refactored Dashboard for dual-column (singer/music director) artist display */
 function Dashboard({ username }) {
-  // App local state
   const [selectedLanguage, setSelectedLanguage] = useState(null);
   const [roleSelection, setRoleSelection] = useState(null); // "singers" or "music-directors"
   const [artistGridPage, setArtistGridPage] = useState(0);
-
-  // Video state management (for demo)
   const [songVideos, setSongVideos] = useState({});
   const [loadingMap, setLoadingMap] = useState({});
   const [errorMap, setErrorMap] = useState({});
   const [openPlayers, setOpenPlayers] = useState({});
+  const [searchVal, setSearchVal] = useState("");
 
-  // Helper: get demo artists by language for each role (returns {singers, musicDirectors})
   function getArtists(langKey) {
     if (!langKey) return { singers: [], musicDirectors: [] };
     return makeDemoArtists(langKey);
   }
 
-  // States for search (if necessary for paging/scroll)
-  const [searchVal, setSearchVal] = useState("");
-
-  // When language or mode changes, reset page and search state
   useEffect(() => {
     setArtistGridPage(0);
     setSearchVal("");
   }, [selectedLanguage, roleSelection]);
 
-  // Fetch YT videos for the 9 visible artists on current page (per role)
   useEffect(() => {
     if (!selectedLanguage || !roleSelection) return;
     const { singers, musicDirectors } = getArtists(selectedLanguage);
@@ -539,7 +321,6 @@ function Dashboard({ username }) {
       a.name.toLowerCase().includes(searchVal.trim().toLowerCase())
     ).slice(artistGridPage * 9, artistGridPage * 9 + 9);
 
-    // For each artist+song, fetch (if not present)
     gridArtists.forEach(artist => {
       let songs = artist.songs;
       if (songs.length < 5) songs = Array(5).fill(0).map((_, i) => songs[i % artist.songs.length]);
@@ -547,34 +328,20 @@ function Dashboard({ username }) {
         const key = `${roleSelection === "singers" ? "singer" : "director"}|${artist.name}|${songTitle}`;
         if (songVideos[key] !== undefined) return;
         setLoadingMap(lm => ({ ...lm, [key]: true }));
-        // DEBUG: Log query parameters
-        console.debug(`[SongVideoFetch] Fetching for:`, {artist: artist.name, songTitle});
         fetchYouTubeVideos(`${artist.name} ${songTitle}`, { maxResults: 1 })
           .then(videos => {
-            // Detect and surface errors/quota/fallbacks
             let errMsg = "";
             let videoObj = null;
             if (!Array.isArray(videos) || videos.length === 0) {
               errMsg = "No video found.";
-              console.warn(`[SongVideoFetch] No video for "${artist.name} ${songTitle}"`);
             } else {
               videoObj = videos[0];
-              // DEBUG: Print what we picked
-              console.debug(
-                `[SongVideoFetch] Success for "${artist.name} - ${songTitle}": id=${videoObj && videoObj.videoId}, title=${videoObj && videoObj.title}`
-              );
-              // For deep debug, log full object if something seems off
-              if (!videoObj.videoId || !videoObj.title) {
-                console.warn(`[SongVideoFetch] (WARN) Odd videoObj for "${artist.name}|${songTitle}":`, videoObj, videos);
-              }
             }
             setSongVideos(prev => ({ ...prev, [key]: videoObj }));
             setErrorMap(prev => ({ ...prev, [key]: errMsg }));
             setLoadingMap(prev => ({ ...prev, [key]: false }));
           })
           .catch((e) => {
-            // Try to give a friendly/youtube API quota hint if detectable.
-            console.error(`[SongVideoFetch] Error: Unable to load for "${artist.name} - ${songTitle}":`, e && e.message);
             setSongVideos(prev => ({ ...prev, [key]: null }));
             setErrorMap(prev => ({ ...prev, [key]: (e && e.message && e.message.indexOf("quota") >= 0)
               ? "YouTube API limit reached. Please try later."
@@ -587,206 +354,11 @@ function Dashboard({ username }) {
     // eslint-disable-next-line
   }, [selectedLanguage, roleSelection, artistGridPage, searchVal]);
 
-  // Small helper: song context clarifications and footnotes by artist/song
-  function getSongClarification(artistName, songTitle) {
-    // Malayalam singers clarification & roles
-    // Sithara Krishnakumar: "Rahasyamay (duet)"
-    if (artistName === "Sithara Krishnakumar" && songTitle.includes("Rahasyamay")) {
-      return {
-        tooltip: "Duet with Zia Ul Haq (Kuruthi).",
-        mark: <sup style={{ color: "#bb7599" }} title="Duet">{'🎶'}</sup>
-      };
-    }
-    if (artistName === "Sithara Krishnakumar" && songTitle === "Ee Shishirakaalam") {
-      return {
-        tooltip: "Duet with Shahabaz Aman (Mayanadhi).",
-        mark: <sup style={{ color: "#bb7599" }} title="Duet">{'🎶'}</sup>
-      };
-    }
-    // Vijay Yesudas: Thaniye Mizhikal (duet), Omal Kanmani (male lead duet)
-    if (artistName === "Vijay Yesudas" && songTitle === "Thaniye Mizhikal (duet)") {
-      return {
-        tooltip: "Duet with Shreya Ghoshal.",
-        mark: <sup style={{ color: "#62abf5" }} title="Duet">{'🎶'}</sup>
-      };
-    }
-    if (artistName === "Vijay Yesudas" && songTitle === "Omal Kanmani") {
-      return {
-        tooltip: "Duet (male lead). Original film: Mayavi.",
-        mark: <sup style={{ color: "#62abf5" }} title="Duet">{'🎶'}</sup>
-      };
-    }
-    // K. S. Chithra: Vellarika and Manathe Chandanakkeeru (alt version)
-    if (artistName === "K. S. Chithra" && songTitle.includes("Vellarika")) {
-      return {
-        tooltip: "Duet with M. G. Sreekumar in Ayal Kadha Ezhuthukayanu.",
-        mark: <sup style={{ color: "#f2bb41" }} title="Duet">{'🎶'}</sup>
-      };
-    }
-    if (artistName === "K. S. Chithra" && songTitle.includes("(ver")) {
-      return {
-        tooltip: "Alternate/older version.",
-        mark: <sup style={{ color: "#b774d2" }} title="Alternate version">{'♻'}</sup>
-      };
-    }
-    // Hesham Abdul Wahab - clarify role in every song
-    if (artistName === "Hesham Abdul Wahab") {
-      if (songTitle.includes("Darshana")) {
-        return {
-          tooltip: "Singer & Composer (Hridayam, 2022)",
-          mark: <sup style={{ color: "#4db56a" }} title="Singer & Composer">{'◆'}</sup>
-        };
-      }
-      if (songTitle.includes("Kudukku")) {
-        return {
-          tooltip: "Composer only. Vocals by Vineeth Sreenivasan, MG Sreekumar.",
-          mark: <sup style={{ color: "#a777c0" }} title="Composer Only">{'C'}</sup>
-        };
-      }
-      if (songTitle.includes("Mayilpeeli")) {
-        return {
-          tooltip: "Composer only. Sung by KS Chithra et al.",
-          mark: <sup style={{ color: "#a777c0" }} title="Composer Only">{'C'}</sup>
-        };
-      }
-      if (songTitle.includes("Rathi Pushpam")) {
-        return {
-          tooltip: "Composer & singer.",
-          mark: <sup style={{ color: "#4db56a" }} title="Composer & Singer">{'◆'}</sup>
-        };
-      }
-      if (songTitle.includes("Thaarame Thaarame")) {
-        return {
-          tooltip: "Composer only; vocals by Sid Sriram.",
-          mark: <sup style={{ color: "#a777c0" }} title="Composer Only">{'C'}</sup>
-        };
-      }
-    }
-    // Vineeth Sreenivasan: all main hits, solo/lead, no footnote needed (covered by artist attribution)
-    // Shreya Ghoshal: Only put clarification if duet/well-known pairing
-    if (artistName === "Shreya Ghoshal" && songTitle.includes("Chanthu Thottille")) {
-      return {
-        tooltip: "Duet with Vijay Yesudas (Banaras, 2009).",
-        mark: <sup style={{ color: "#8d63c7" }} title="Duet">{'🎶'}</sup>
-      };
-    }
-    if (artistName === "Shreya Ghoshal" && songTitle.includes("Mandharacheppundo")) {
-      return {
-        tooltip: "Duet with P. Jayachandran.",
-        mark: <sup style={{ color: "#8d63c7" }} title="Duet">{'🎶'}</sup>
-      };
-    }
-
-    // Hindi singers
-    if (artistName === "Arijit Singh" && songTitle === "Raabta") {
-      return {
-        tooltip: "This is the newer 2017 version of 'Raabta' sung by Arijit, not the original.",
-        mark: <sup style={{ color: "#a492f1" }} title="Newer version (2017)">{'★'}</sup>
-      };
-    }
-    if (artistName === "Shreya Ghoshal" && songTitle === "Param Sundari") {
-      return {
-        tooltip: "This is a high-energy dance number.",
-        mark: <sup style={{ color: "#e98768" }} title="Dance number">{'•'}</sup>
-      };
-    }
-    if (artistName === "Shreya Ghoshal" && songTitle === "Sun Raha Hai") {
-      return {
-        tooltip: "This is the female version; the male version (by Ankit Tiwari) is more well known.",
-        mark: <sup style={{ color: "#e98768" }} title="Female version">{'ⓘ'}</sup>
-      };
-    }
-    // Telugu singer-song attribution clarifications
-    //  – Pilla Raa: main singer is Anurag Kulkarni, feat. Sravana Bhargavi/Chinmayi for chorus in versions
-    if (artistName === "Anurag Kulkarni" && songTitle === "Pilla Raa") {
-      return {
-        tooltip: "Sung by Anurag Kulkarni; sometimes features additional chorus vocals by others.",
-        mark: <sup style={{ color: "#2bc67b" }} title="Solo by Anurag Kulkarni">{'♬'}</sup>
-      };
-    }
-    // – Adiga Adiga: main singer is Ramya Behara
-    if (artistName === "Ramya Behara" && songTitle === "Adiga Adiga") {
-      return {
-        tooltip: "Main version by Ramya Behara.",
-        mark: <sup style={{ color: "#2b95c4" }} title="Solo by Ramya Behara">{'♬'}</sup>
-      };
-    }
-    // – Chiranjeevi Chiranjeevi: Actually Sid Sriram (male version)
-    if (artistName === "Sid Sriram" && songTitle === "Chiranjeevi Chiranjeevi") {
-      return {
-        tooltip: "Sung by Sid Sriram. Female version performed separately.",
-        mark: <sup style={{ color: "#bb447c" }} title="Sid Sriram version">{'♂'}</sup>
-      };
-    }
-    // – Neeli Neeli Akasam: Sunitha is female lead
-    if (artistName === "Sunitha" && songTitle === "Neeli Neeli Akasam") {
-      return {
-        tooltip: "Sunitha's melodic female solo; folk version also exists.",
-        mark: <sup style={{ color: "#4891e7" }} title="Sunitha">{'♬'}</sup>
-      };
-    }
-    // – Mangli, “Ramuloo Ramulaa”: minor/chorus role, not lead
-    if (artistName === "Mangli" && songTitle === "Ramuloo Ramulaa") {
-      return {
-        tooltip: "Mangli contributed chorus/festival vocals; main vocals by Anurag Kulkarni.",
-        mark: <sup style={{ color: "#e17e10" }} title="Chorus/Festival Contribution">{'(min.)'}</sup>
-      };
-    }
-    // – Oo Antava: by Indravathi Chauhan, not Mangli
-    if (artistName === "Indravathi Chauhan" && songTitle === "Oo Antava") {
-      return {
-        tooltip: "Breakout solo song by Indravathi Chauhan.",
-        mark: <sup style={{ color: "#ff1096" }} title="Solo by Indravathi Chauhan">{'♬'}</sup>
-      };
-    }
-    // For completeness, if ever if collaborative: show “feat.” mark in the future.
-    // Special: Kar Gayi Chull – clarify attribution for Amaal Mallik
-    if (
-      artistName === "Amaal Mallik" &&
-      songTitle === "Kar Gayi Chull"
-    ) {
-      return {
-        tooltip: "Original song by Badshah–Fazilpuria; Bollywood film adaptation/arrangement by Amaal Mallik.",
-        mark: <sup style={{ color: "#e27187" }} title="Original song by Badshah–Fazilpuria; Bollywood adaption by Amaal Mallik">*</sup>
-      };
-    }
-    // Neha Kakkar: footnote for remakes (all songs in demo list for her)
-    if (
-      artistName === "Neha Kakkar" &&
-      ["Aankh Marey", "Kala Chashma", "Dilbar", "Garmi", "Nikle Currant"].includes(songTitle)
-    ) {
-      return {
-        tooltip: "Neha featured in several remake or group songs.",
-        mark: <sup style={{ color: "#5e52b5" }} title="Remake/Group Song">{'Ὤ8'}</sup> // Unicode info, but fallback to i
-          || <sup style={{ color: "#5e52b5" }} title="Remake/Group Song">i</sup>
-      };
-    }
-    // Armaan Malik, Control
-    if (artistName === "Armaan Malik" && songTitle === "Control") {
-      return {
-        tooltip: "This is an English pop single released internationally.",
-        mark: <sup style={{ color: "#379ccc" }} title="English Pop">{'ἱ0'}</sup>
-          || <sup style={{ color: "#379ccc" }} title="English Pop">EN</sup>
-      };
-    }
-    // No context
-    return null;
-  }
-
-  // PUBLIC_INTERFACE: Card for a single artist with vertical YouTube video list
   function ArtistGridCard({ artist, role }) {
     let songs = artist.songs && artist.songs.length < 5
       ? Array(5).fill(0).map((_, i) => artist.songs[i % artist.songs.length])
       : artist.songs;
     songs = songs.slice(0, 5);
-
-    // For Neha Kakkar, summarize remake/group note once per card as subtle footnote
-    const isNehaKakkar = artist.name === "Neha Kakkar";
-    let hasNehaFootnote = false; // Tracks if we rendered one Neha footnote
-
-    // For Amaal Mallik+Kar Gayi Chull: show bottom attribution
-    const showKarGayiChullFootnote =
-      artist.name === "Amaal Mallik" && songs.includes("Kar Gayi Chull");
 
     return (
       <div style={{
@@ -829,10 +401,7 @@ function Dashboard({ username }) {
             const video = songVideos[songKey];
             const error = errorMap[songKey];
             const loading = loadingMap[songKey];
-
-            // Clarification context: Tooltip/footnote if appropriate
-            const clarify = getSongClarification(artist.name, songTitle);
-
+            // Only show LyricsFetcher for English
             return (
               <div
                 key={songKey}
@@ -852,14 +421,7 @@ function Dashboard({ username }) {
                   alignItems: "center",
                   gap: 4
                 }}>
-                  <span
-                    // Tooltip: Only show if clarification exists
-                    {...(clarify ? { title: clarify.tooltip, style: { cursor: "help" } } : {})}
-                  >
-                    {songTitle}
-                  </span>
-                  {/* Mark: add only if clarify Data */}
-                  {clarify && clarify.mark}
+                  <span>{songTitle}</span>
                 </div>
                 <div style={{ width: "100%", minHeight: 70 }}>
                   {loading && (
@@ -884,7 +446,6 @@ function Dashboard({ username }) {
                       allowFullScreen
                     />
                   )}
-                  {/* Graceful fallback: friendly message if API error, quota issue, or no results */}
                   {!loading && (!video || !video.videoId) && (
                     <div
                       style={{
@@ -930,43 +491,20 @@ function Dashboard({ username }) {
                       )}
                     </div>
                   )}
+                  {/* English only: Show lyrics tab */}
+                  {canShowLyrics(selectedLanguage) &&
+                    <LyricsFetcher artist={artist.name} title={songTitle} />
+                  }
                 </div>
               </div>
             );
           })}
-          {/* For Neha Kakkar, a single subtle footnote at card bottom */}
-          {isNehaKakkar && (
-            <div style={{
-              color: "#5e52b5",
-              fontSize: 12,
-              marginTop: 8,
-              textAlign: "center",
-              opacity: 0.72
-            }}>
-              <span style={{ fontSize: 14, verticalAlign: "middle" }}>
-                {String.fromCharCode(8508) /* info/tooltip symbol unicode */}
-              </span>{" "}
-              Many of Neha's songs are remakes or are group performances.
-            </div>
-          )}
-          {/* For Amaal Mallik, show a footnote for Kar Gayi Chull attribution at card bottom if shown */}
-          {showKarGayiChullFootnote && (
-            <div style={{
-              color: "#e27187",
-              fontSize: 12,
-              marginTop: 8,
-              textAlign: "center",
-              opacity: 0.82
-            }}>
-              * Kar Gayi Chull: Original song by Badshah–Fazilpuria. Bollywood adaptation/arrangement by Amaal Mallik for Kapoor & Sons (2016).
-            </div>
-          )}
         </div>
       </div>
     );
   }
 
-  // Layout: Show language grid if no language selected
+  // Language grid selection
   if (!selectedLanguage) {
     return (
       <main style={{
@@ -1008,9 +546,7 @@ function Dashboard({ username }) {
     );
   }
 
-  // Layout: Show selection between "Singers" or "Music Directors", as prominent columns
   if (!roleSelection) {
-    // Only both if music directors exist for this language
     return (
       <main style={{
         minHeight: "calc(100vh - 75px)",
@@ -1082,7 +618,6 @@ function Dashboard({ username }) {
               <span style={{ fontSize: 35 }}>🎤</span>
               <div style={{ fontSize: 27, marginTop: 10, marginBottom: 5 }}>Singers</div>
             </div>
-            {/* Show "Music Directors" always for ta and en */}
             <div
               role="button"
               tabIndex={0}
@@ -1116,16 +651,13 @@ function Dashboard({ username }) {
     );
   }
 
-  // Layout: show the selected set (3x3 grid, with artist card "column" and their vertical YT embeds)
+  // Grid render
   const { singers, musicDirectors } = getArtists(selectedLanguage);
   const isSingers = roleSelection === "singers";
   const fullList = isSingers ? singers : musicDirectors;
-
-  // Filtering (if search in future), just for searchBox/scroll add-on
   const filtered = (!searchVal.trim())
     ? fullList
     : fullList.filter(a => a.name.toLowerCase().includes(searchVal.trim().toLowerCase()));
-
   const maxPages = Math.ceil(filtered.length / 9);
   const grid = filtered.slice(artistGridPage * 9, artistGridPage * 9 + 9);
 
@@ -1150,7 +682,6 @@ function Dashboard({ username }) {
         flexDirection: "column",
         alignItems: "stretch"
       }}>
-        {/* Top Bar with Back, Indicator & optional search */}
         <div style={{
           display: "flex",
           alignItems: "center",
@@ -1202,7 +733,6 @@ function Dashboard({ username }) {
             }}
           />
         </div>
-        {/* The 3x3 grid */}
         <div style={{
           marginTop: 7,
           display: "grid",
@@ -1227,7 +757,6 @@ function Dashboard({ username }) {
             </div>
           }
         </div>
-        {/* Pagination */}
         {maxPages > 1 && (
           <div style={{
             marginTop: 35,
@@ -1274,11 +803,11 @@ function Dashboard({ username }) {
   );
 }
 
-// LyricsFetcher: Fetch lyrics for EN/HI if available and show a "Show Lyrics" expandable tab
+// LyricsFetcher: Fetch lyrics for EN if available and show a "Show Lyrics" expandable tab
 function LyricsFetcher({ artist, title }) {
   const [open, setOpen] = useState(false);
   const [lyrics, setLyrics] = useState("");
-  const [status, setStatus] = useState("idle"); // idle/loading/done/error
+  const [status, setStatus] = useState("idle");
 
   useEffect(() => {
     if (!open) return;
@@ -1313,7 +842,6 @@ function LyricsFetcher({ artist, title }) {
   );
 }
 
-// -- General UI styles --
 const inputStyle = {
   width: "100%",
   padding: "9px 10px",
@@ -1338,6 +866,5 @@ const linkBtnStyle = {
   fontSize: 15,
   padding: 0
 };
-
 
 export default App;
