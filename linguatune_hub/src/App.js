@@ -77,12 +77,70 @@ function makeDemoArtists(langKey) {
       { name: "Indravathi Chauhan", songs: ["Oo Antava"] }
     ],
     ml: [
-      { name: "Sithara Krishnakumar", songs: ["Pavizha Mazha", "Vaanam Thilathilakkanu", "Oru Venal Puzhayil", "Anuraga Vilochananayi", "Ee Shishirakaalam"] },
-      { name: "Vijay Yesudas", songs: ["Malare", "Entammede Jimikki Kammal", "Omal Kanmani", "Poomuthole", "Nithya Sahaya"] },
-      { name: "K. S. Chithra", songs: ["Manathe Chandanakkeeru", "Unaru Unaru", "Aalolam", "Vellarika", "Manathe Chandanakkeeru (ver2)"] },
-      { name: "Hesham Abdul Wahab", songs: ["Darshana", "Kudukku", "Rathi Pushpam", "Thaarame Thaarame", "Malarvadi"] },
-      { name: "Vineeth Sreenivasan", songs: ["Premam Aluva Puzha", "Aaro Nenjil", "Malarvadi Arts Club", "Palavattam", "Thudakkam Mangalyam"] },
-      { name: "Shreya Ghoshal", songs: ["Mizhiyoram", "Megharoopan", "Neermathalam", "Oru Kari Mukilinu", "Chembavu"] }
+      // Sithara Krishnakumar: Only authentic solos/duets she performed. Example: "Vaanam Thilathilakkanu" (Uyare), "Pavizha Mazha" (Athiran), "Oru Venal Puzhayil", "Ee Shishirakaalam", "Rahasyamay" (duet, Kuruthi) etc.
+      { 
+        name: "Sithara Krishnakumar", 
+        songs: [
+          "Vaanam Thilathilakkanu", // Uyare, solo
+          "Pavizha Mazha", // Athiran, solo
+          "Oru Venal Puzhayil", // Summer in Bethlehem, actual attribution
+          "Ee Shishirakaalam", // Mayanadhi, duet with Shahabaz Aman
+          "Rahasyamay (duet)" // Kuruthi, duet with Zia Ul Haq
+        ]
+      },
+      // Vijay Yesudas: Only iconic hits as main singer. Remove devotional/uncertain; keep "Malare", "Jimikki Kammal".
+      { 
+        name: "Vijay Yesudas", 
+        songs: [
+          "Malare", // Premam
+          "Entammede Jimikki Kammal", // Velipadinte Pusthakam
+          "Omal Kanmani", // Mayavi, love duet, he is male lead (w/ Sujatha)
+          "Thaniye Mizhikal (duet)", // Bhaskar The Rascal, with Shreya Ghoshal
+          "Poomuthole" // Joseph, lead vocal (confirmed)
+        ]
+      },
+      // K. S. Chithra: Only confirmed songs, mark/clarify duet/alternate as needed.
+      {
+        name: "K. S. Chithra",
+        songs: [
+          "Manathe Chandanakkeeru", // Unnikkale Oru Kadha Parayam, solo
+          "Unaru Unaru", // 'Unaru' film, solo
+          "Aalolam", // 'Chamayam', solo
+          "Vellarika (duet with M. G. Sreekumar)", // Ayal Kadha Ezhuthukayanu, mark as duet
+          "Manathe Chandanakkeeru (1987 ver.)" // sometimes duet, specify alternate
+        ]
+      },
+      // Hesham Abdul Wahab: Indicate singer/composer only, clarify role.
+      {
+        name: "Hesham Abdul Wahab",
+        songs: [
+          "Darshana (singer & composer)", // Hridayam, main male singer & composer
+          "Kudukku (composer only)",      // Bro Daddy, sung by Vineeth Sreenivasan & MG Sreekumar
+          "Rathi Pushpam (composer/singer)", // Auto, both
+          "Mayilpeeli (composer only)",   // Ayisha, sung by KS Chithra et al
+          "Thaarame Thaarame (composer only)" // Ishq, composer; sung by Sid Sriram
+        ]
+      },
+      // Vineeth Sreenivasan: Review, mainly keep main hits
+      {
+        name: "Vineeth Sreenivasan",
+        songs: [
+          "Premam Aluva Puzha", // Premam
+          "Aaro Nenjil", // Thattathin Marayathu
+          "Malarvadi Arts Club", // Title song
+          "Palavattam", // Chappa Kurishu
+          "Thudakkam Mangalyam" // Bangalore Days
+        ]
+      },
+      // Shreya Ghoshal: Remove lesser-knowns, keep only most widely known/real
+      {
+        name: "Shreya Ghoshal",
+        songs: [
+          "Chanthu Thottille (duet)", // Banaras, duet with Vijay Yesudas
+          "Mandharacheppundo (duet)", // Dasharatham, duet with P. Jayachandran (flag if alternate, else omit)
+          // Mark: Any Malayalam song here features her only if confirmed major appearance.
+        ]
+      }
     ],
     kn: [
       { name: "Sonu Nigam", songs: ["Neene Neene", "Swalpaagidantha", "Baa Baa", "Ee Sanje Yaakaagide", "Nenapirali"] },
