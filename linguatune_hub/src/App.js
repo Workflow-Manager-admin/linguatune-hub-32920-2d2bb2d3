@@ -1011,7 +1011,6 @@ function Dashboard({ username }) {
   // Layout: Show selection between "Singers" or "Music Directors", as prominent columns
   if (!roleSelection) {
     // Only both if music directors exist for this language
-    const isIndianLang = ["ta", "hi", "te", "ml", "kn"].includes(selectedLanguage);
     return (
       <main style={{
         minHeight: "calc(100vh - 75px)",
@@ -1083,35 +1082,34 @@ function Dashboard({ username }) {
               <span style={{ fontSize: 35 }}>🎤</span>
               <div style={{ fontSize: 27, marginTop: 10, marginBottom: 5 }}>Singers</div>
             </div>
-            {isIndianLang && (
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() => setRoleSelection("music-directors")}
-                onKeyPress={e => { if (e.key === "Enter" || e.key === " ") setRoleSelection("music-directors"); }}
-                style={{
-                  flex: 1,
-                  background: "var(--card)",
-                  borderRadius: 20,
-                  border: "2.7px solid #af78c2",
-                  boxShadow: "0 4px 24px #af78c225",
-                  minHeight: 210,
-                  margin: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 31,
-                  fontWeight: 800,
-                  color: "#af78c2",
-                  cursor: "pointer",
-                  transition: "transform .13s, box-shadow .13s"
-                }}
-              >
-                <span style={{ fontSize: 36 }}>🎼</span>
-                <div style={{ fontSize: 27, marginTop: 10, marginBottom: 5 }}>Music Directors</div>
-              </div>
-            )}
+            {/* Show "Music Directors" always for ta and en */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => setRoleSelection("music-directors")}
+              onKeyPress={e => { if (e.key === "Enter" || e.key === " ") setRoleSelection("music-directors"); }}
+              style={{
+                flex: 1,
+                background: "var(--card)",
+                borderRadius: 20,
+                border: "2.7px solid #af78c2",
+                boxShadow: "0 4px 24px #af78c225",
+                minHeight: 210,
+                margin: 12,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 31,
+                fontWeight: 800,
+                color: "#af78c2",
+                cursor: "pointer",
+                transition: "transform .13s, box-shadow .13s"
+              }}
+            >
+              <span style={{ fontSize: 36 }}>🎼</span>
+              <div style={{ fontSize: 27, marginTop: 10, marginBottom: 5 }}>Music Directors</div>
+            </div>
           </div>
         </div>
       </main>
