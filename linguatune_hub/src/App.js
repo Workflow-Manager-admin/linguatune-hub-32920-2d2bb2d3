@@ -345,12 +345,59 @@ function LanguageColumn({
   selectedLyricsSongIdx,
   onCloseLyrics,
   loading,
-  error
+  error,
+  fetchLyricsApi
 }) {
   const [searchStr, setSearchStr] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState("");
+  // --- Lyrics panel async state (for EN/HI) ---
+  const [lyricsState, setLyricsState] = useState({
+    text: "",
+    status: "idle", // "idle" | "loading" | "done" | "error"
+    error: ""
+  });
+
+  // Refetch lyrics on new tab open/selection (only for EN/HI columns)
+  useEffect(() => {
+    let cancel = false;
+    if (
+      showLyricsTab &&
+      typeof selectedLyricsSongIdx === "number" &&
+      canShowLyrics(language.key)
+    ) {
+      const songList = searchStr.trim() ? searchResult : songSuggestions;
+      const currSong = songList[selectedLyricsSongIdx];
+      if (!currSong) {
+        setLyricsState({ text: "", status: "idle", error: "" });
+        return;
+      }
+      setLyricsState({ text: "", status: "loading", error: "" });
+      fetchLyricsApi(currSong.artist, currSong.title)
+        .then((lyrics) => {
+          if (!cancel)
+            setLyricsState({ text: lyrics, status: "done", error: "" });
+        })
+        .catch((e) => {
+          if (!cancel)
+            setLyricsState({
+              text: "",
+              status: "error",
+              error:
+                typeof e === "object" && e && e.message
+                  ? e.message
+                  : "Lyrics not found"
+            });
+        });
+    } else {
+      setLyricsState({ text: "", status: "idle", error: "" });
+    }
+    return () => {
+      cancel = true;
+    };
+    // eslint-disable-next-line
+  }, [showLyricsTab, selectedLyricsSongIdx, searchStr, searchResult, songSuggestions, language.key, fetchLyricsApi]);
 
   // Handle search on user input
   useEffect(() => {
@@ -464,9 +511,17 @@ function LanguageColumn({
       {/* Lyrics Tab - only for columns that support it and have a selected song */}
       {showLyricsTab && typeof selectedLyricsSongIdx === "number" && (
         <LyricsPanel
-          song={songList[selectedLyricsSongIdx]}
+          song={{
+            ...songList[selectedLyricsSongIdx],
+            lyrics:
+              lyricsState.status === "done"
+                ? lyricsState.text
+                : undefined
+          }}
           languageLabel={language.label}
           onClose={onCloseLyrics}
+          lyricsStatus={lyricsState.status}
+          lyricsError={lyricsState.error}
         />
       )}
     </section>
