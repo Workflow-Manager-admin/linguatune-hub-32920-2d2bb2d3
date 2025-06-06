@@ -640,17 +640,23 @@ function Dashboard({ username }) {
           {/* Two responsive columns: Singers | Music Directors */}
           <div style={columnsContainerStyle}>
             {ROLES.map(({ key: role, label, icon, accent }) => {
+              // Only ONE artist per column should be shown: pick the first item from filtered
               const artistList = role === "singer" ? singers : musicDirectors;
               const filtered = filterByRole(artistList, searchVals[role]);
+              // Pick the first artist if available
+              const selectedArtist = filtered.length > 0 ? filtered[0] : null;
               return (
                 <section
                   key={role}
                   style={columnCardStyle}
                 >
-                  {/* Column heading */}
+                  {/* Header: Show just the artist's name as header (if any artist) */}
                   <header style={roleHeaderStyle(role)}>
-                    <span style={{ fontSize: 28 }}>{icon}</span> {label}
+                    <span style={{ fontSize: 28 }}>{icon}</span>
+                    {" "}
+                    {selectedArtist ? selectedArtist.name : `No ${label.slice(0, -1)} found`}
                   </header>
+                  {/* Optionally provide a search bar for some minimal filtering of that one artist (will change artist if query matches another) */}
                   <input
                     type="text"
                     value={searchVals[role]}
@@ -672,72 +678,44 @@ function Dashboard({ username }) {
                     borderRadius: 14,
                     paddingRight: 5
                   }}>
-                    {/* List of artist cards */}
-                    {filtered.length === 0 ? (
+                    {!selectedArtist ? (
                       <div style={{
                         color: "#aaa", fontSize: 16, margin: "20px 0", textAlign: "center"
                       }}>
-                        No matching {label.toLowerCase()} found.
+                        No {label.slice(0, -1).toLowerCase()} found.
                       </div>
-                    ) : filtered.map((artist, idx) => (
+                    ) : (
                       <div
-                        key={artist.name}
+                        key={selectedArtist.name}
                         style={{
-                          background: expandedArtist[role] === idx ? "#fff2f9" : COLORS.songCard,
+                          background: COLORS.songCard,
                           borderRadius: 10,
-                          boxShadow: expandedArtist[role] === idx ? "0 3px 15px #e87a4122" : "none",
-                          border: expandedArtist[role] === idx ? `2px solid ${accent}` : "1.1px solid #e4caea",
+                          boxShadow: "0 3px 15px #e87a4122",
+                          border: `2px solid ${accent}`,
                           color: COLORS.accent,
                           marginBottom: 11,
                           fontWeight: 700,
                           fontSize: 17,
                           padding: "13px 9px 11px 11px",
-                          cursor: "pointer",
                           transition: "all 0.12s"
                         }}
                         tabIndex={0}
-                        aria-label={`Show songs for ${artist.name}`}
-                        onClick={() =>
-                          setExpandedArtist(prev => ({
-                            ...prev,
-                            [role]: prev[role] === idx ? null : idx
-                          }))
-                        }
-                        onKeyPress={e => {
-                          if (e.key === "Enter" || e.key === " ")
-                            setExpandedArtist(prev => ({
-                              ...prev,
-                              [role]: prev[role] === idx ? null : idx
-                            }));
-                        }}
+                        aria-label={`Show songs for ${selectedArtist.name}`}
                       >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <span style={{
-                            fontWeight: 800,
-                            color: accent,
-                            marginRight: 7,
-                            fontSize: 19
-                          }}>{icon}</span>
-                          <span>{artist.name}</span>
-                          {expandedArtist[role] === idx && (
-                            <span style={{
-                              marginLeft: "auto",
-                              color: accent,
-                              fontWeight: 700,
-                              fontSize: 21
-                            }}>↓</span>
+                        {/* Show all songs for this artist */}
+                        <div style={{ marginTop: 11 }}>
+                          {(selectedArtist.songs && selectedArtist.songs.length > 0) ? (
+                            selectedArtist.songs.slice(0,50).map(songTitle => (
+                              <SongItem artist={selectedArtist} songTitle={songTitle} role={role} key={selectedArtist.name + "|" + songTitle} />
+                            ))
+                          ) : (
+                            <div style={{ color: "#888", fontSize: 15, fontWeight: 400 }}>
+                              No songs found for this artist.
+                            </div>
                           )}
                         </div>
-                        {/* When expanded: show all this artist's songs, each with title and YT video */}
-                        {expandedArtist[role] === idx && (
-                          <div style={{ marginTop: 11 }}>
-                            {artist.songs.map(songTitle => (
-                              <SongItem artist={artist} songTitle={songTitle} role={role} key={artist.name + "|" + songTitle} />
-                            ))}
-                          </div>
-                        )}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </section>
               );
