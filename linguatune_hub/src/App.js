@@ -250,11 +250,12 @@ function AuthForm({ onAuthComplete }) {
  * PUBLIC_INTERFACE
  * Dashboard showing language names in a 3x2 row-wise grid, using theme colors,
  * OR (if a language is selected), show that language's search bar, curated artist/song list, Back button.
+ *
+ * All React hooks now appear unconditionally, outside conditional branches to avoid "Rendered more hooks" errors.
  */
 function Dashboard({ username }) {
-  // State to track which language is currently selected (if any)
+  // Always declare React state hooks at the top level.
   const [selectedLanguage, setSelectedLanguage] = useState(null);
-  // Always define search value for detail view
   const [searchVal, setSearchVal] = useState("");
 
   // Static or placeholder curated data for each language
@@ -303,18 +304,27 @@ function Dashboard({ username }) {
     ],
   };
 
-  // If a language is selected, show the single-language detail view
-  if (selectedLanguage) {
-    const lang = LANGUAGES.find(l => l.key === selectedLanguage);
-    // Filter curated artist/song list by searchVal (case-insensitive)
-    const curatedList = CURATED[selectedLanguage] || [];
-    const filtered = searchVal.trim()
+  // We always render EITHER single-language detail view, or the main grid.
+  // Compute vars outside conditional for best eligibility checking.
+  const lang =
+    selectedLanguage !== null
+      ? LANGUAGES.find((l) => l.key === selectedLanguage)
+      : null;
+  const curatedList =
+    selectedLanguage !== null && CURATED[selectedLanguage]
+      ? CURATED[selectedLanguage]
+      : [];
+  const filtered =
+    selectedLanguage !== null && searchVal.trim()
       ? curatedList.filter(
-          s =>
+          (s) =>
             s.artist.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
             s.title.toLowerCase().includes(searchVal.trim().toLowerCase())
         )
       : curatedList;
+
+  // If a language is selected, show the single-language detail view
+  if (selectedLanguage) {
     return (
       <main
         style={{
@@ -338,26 +348,30 @@ function Dashboard({ username }) {
             padding: "37px 18px 22px 18px",
             display: "flex",
             flexDirection: "column",
-            alignItems: "stretch"
+            alignItems: "stretch",
           }}
         >
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 8,
-            marginBottom: 15
-          }}>
-            <h2 style={{
-              color: COLORS.primary,
-              fontWeight: 700,
-              fontSize: 26,
-              letterSpacing: "0.01em",
-              margin: 0,
-              flex: 1,
-              lineHeight: 1.18
-            }}>
-              {lang.label} Songs
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 8,
+              marginBottom: 15,
+            }}
+          >
+            <h2
+              style={{
+                color: COLORS.primary,
+                fontWeight: 700,
+                fontSize: 26,
+                letterSpacing: "0.01em",
+                margin: 0,
+                flex: 1,
+                lineHeight: 1.18,
+              }}
+            >
+              {lang && lang.label} Songs
             </h2>
             <button
               className="btn"
@@ -369,7 +383,7 @@ function Dashboard({ username }) {
                 fontWeight: 600,
                 borderRadius: 8,
                 minWidth: 0,
-                fontSize: 16
+                fontSize: 16,
               }}
               onClick={() => {
                 setSelectedLanguage(null);
@@ -382,8 +396,8 @@ function Dashboard({ username }) {
           <input
             type="text"
             value={searchVal}
-            onChange={e => setSearchVal(e.target.value)}
-            placeholder={`Search by artist or song in ${lang.label}`}
+            onChange={(e) => setSearchVal(e.target.value)}
+            placeholder={`Search by artist or song in ${lang ? lang.label : ""}`}
             className="input"
             style={{
               ...inputStyle,
@@ -391,7 +405,7 @@ function Dashboard({ username }) {
               border: `1.4px solid ${COLORS.primary}`,
               color: COLORS.accent,
               marginBottom: 19,
-              fontSize: 16
+              fontSize: 16,
             }}
             autoFocus
           />
@@ -401,7 +415,7 @@ function Dashboard({ username }) {
                 color: "#b694bc",
                 fontWeight: 500,
                 fontSize: 15,
-                marginBottom: 9
+                marginBottom: 9,
               }}
             >
               Curated Artists & Songs
@@ -423,7 +437,7 @@ function Dashboard({ username }) {
                     display: "flex",
                     flexDirection: "column",
                     gap: 4,
-                    border: `1.6px solid ${COLORS.primary}25`
+                    border: `1.6px solid ${COLORS.primary}25`,
                   }}
                 >
                   <div style={{ fontWeight: 600, color: COLORS.accent, fontSize: 17 }}>
@@ -467,7 +481,7 @@ function Dashboard({ username }) {
               setSelectedLanguage(lang.key);
               setSearchVal(""); // clear search value whenever new lang selected
             }}
-            onKeyPress={e => {
+            onKeyPress={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 setSelectedLanguage(lang.key);
                 setSearchVal("");
