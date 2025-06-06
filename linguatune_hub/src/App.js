@@ -392,13 +392,23 @@ function Dashboard({ username }) {
   const [openPlayers, setOpenPlayers] = useState({});
   const [searchVals, setSearchVals] = useState({ singer: "", director: "" });
   const [expandedArtist, setExpandedArtist] = useState({ singer: null, director: null });
-  // Always define activeRole, but only use for Indian languages
+
   const [activeRole, setActiveRole] = useState("singer");
+  const [artistGridPage, setArtistGridPage] = useState(0);
 
   const ROLES = [
     { key: "singer", label: "Singers", icon: "🎤", accent: COLORS.primary },
     { key: "director", label: "Music Directors", icon: "🎼", accent: "#af78c2" }
   ];
+
+  // Helper for handling navigation between grid pages (for 3x3 layouts)
+  function handleGridPageChange(direction, maxPages) {
+    setArtistGridPage((old) => {
+      if (direction === "next" && old < maxPages - 1) return old + 1;
+      if (direction === "prev" && old > 0) return old - 1;
+      return old;
+    });
+  }
 
   // PUBLIC_INTERFACE
   function getArtists(langKey) {
