@@ -17,11 +17,7 @@ const COLORS = {
 
 const LANGUAGES = [
   { label: "English", key: "en", query: "english pop music" },
-  { label: "Tamil", key: "ta", query: "tamil songs" },
-  { label: "Hindi", key: "hi", query: "hindi bollywood music" },
-  { label: "Telugu", key: "te", query: "telugu songs" },
-  { label: "Malayalam", key: "ml", query: "malayalam songs" },
-  { label: "Kannada", key: "kn", query: "kannada songs" }
+  { label: "Tamil", key: "ta", query: "tamil songs" }
 ];
 
 /**
