@@ -24,7 +24,167 @@ const LANGUAGES = [
   { label: "Kannada", key: "kn", query: "kannada songs" }
 ];
 
-// Mock lyrics for English and Hindi above; others do not get lyrics tab.
+// Six famous artists with three hit songs per language
+const ARTISTS = {
+  en: [
+    {
+      name: "Taylor Swift",
+      songs: ["Love Story", "Blank Space", "Shake It Off"]
+    },
+    {
+      name: "Ed Sheeran",
+      songs: ["Shape of You", "Perfect", "Thinking Out Loud"]
+    },
+    {
+      name: "Adele",
+      songs: ["Hello", "Someone Like You", "Rolling in the Deep"]
+    },
+    {
+      name: "The Weeknd",
+      songs: ["Blinding Lights", "Starboy", "Save Your Tears"]
+    },
+    {
+      name: "Beyoncé",
+      songs: ["Halo", "Single Ladies", "Crazy In Love"]
+    },
+    {
+      name: "Bruno Mars",
+      songs: ["Uptown Funk", "Just The Way You Are", "Grenade"]
+    }
+  ],
+  hi: [
+    {
+      name: "Arijit Singh",
+      songs: ["Tum Hi Ho", "Channa Mereya", "Ae Dil Hai Mushkil"]
+    },
+    {
+      name: "Shreya Ghoshal",
+      songs: ["Teri Meri", "Sun Raha Hai", "Saans"]
+    },
+    {
+      name: "Sonu Nigam",
+      songs: ["Kal Ho Naa Ho", "Abhi Mujh Mein Kahin", "Suraj Hua Maddham"]
+    },
+    {
+      name: "Neha Kakkar",
+      songs: ["Aankh Marey", "Kala Chashma", "Dilbar"]
+    },
+    {
+      name: "KK",
+      songs: ["Zara Sa", "Tadap Tadap", "Kya Mujhe Pyaar Hai"]
+    },
+    {
+      name: "Armaan Malik",
+      songs: ["Bol Do Na Zara", "Main Hoon Hero Tera", "Wajah Tum Ho"]
+    }
+  ],
+  ta: [
+    {
+      name: "Anirudh Ravichander",
+      songs: ["Why This Kolaveri Di", "Chellamma", "Vaathi Coming"]
+    },
+    {
+      name: "Sid Sriram",
+      songs: ["Ennodu Nee Irundhaal", "Yennai Maatrum Kadhale", "Maruvaarthai"]
+    },
+    {
+      name: "Shreya Ghoshal",
+      songs: ["Munbe Vaa", "Un Perai Sollum", "Neeyum Naanum"]
+    },
+    {
+      name: "S.P. Balasubrahmanyam",
+      songs: ["Nilaave Vaa", "Mandram Vandha", "Ennulle Ennulle"]
+    },
+    {
+      name: "Chinmayi",
+      songs: ["Sara Sara", "Lago Mare", "Idhu Varai"]
+    },
+    {
+      name: "Dhanush",
+      songs: ["Rowdy Baby", "Kolaveri Di", "Amma Amma"]
+    }
+  ],
+  te: [
+    {
+      name: "Devi Sri Prasad",
+      songs: ["Seeti Maar", "Ringa Ringa", "Top Lesi Poddi"]
+    },
+    {
+      name: "Sid Sriram",
+      songs: ["Inkem Inkem Inkem Kaavaale", "Samajavaragamana", "Adiga Adiga"]
+    },
+    {
+      name: "S. P. Balasubrahmanyam",
+      songs: ["Priya Priya", "Ee Reyi Theyanadi", "Madhumasam"]
+    },
+    {
+      name: "Chinmayi",
+      songs: ["Yem Sandeham Ledu", "Pranaamam", "Nijamainadi"]
+    },
+    {
+      name: "Shreya Ghoshal",
+      songs: ["Hey Pillagada", "Saaho Re", "Chiranjeevi Chiranjeevi"]
+    },
+    {
+      name: "Mano",
+      songs: ["Botany Pathamundi", "Bangaru Kodi Petta", "Baahubali Title Song"]
+    }
+  ],
+  ml: [
+    {
+      name: "Sithara Krishnakumar",
+      songs: ["Vaanam Thilathilakkanu", "Oru Venal Puzhayil", "Pavizha Mazha"]
+    },
+    {
+      name: "Vijay Yesudas",
+      songs: ["Malare", "Poomuthole", "Entammede Jimikki Kammal"]
+    },
+    {
+      name: "K. S. Chithra",
+      songs: ["Anuraga Vilochananayi", "Manathe Chandanakkeeru", "Unaru Unaru"]
+    },
+    {
+      name: "Shreya Ghoshal",
+      songs: ["Mizhiyoram", "Megharoopan", "Neermathalam"]
+    },
+    {
+      name: "Hesham Abdul Wahab",
+      songs: ["Darshana", "Kudukku", "Rathi Pushpam"]
+    },
+    {
+      name: "Vineeth Sreenivasan",
+      songs: ["Premam Aluva Puzha", "Aaro Nenjil", "Malarvadi Arts Club"]
+    }
+  ],
+  kn: [
+    {
+      name: "Sonu Nigam",
+      songs: ["Neene Neene", "Swalpaagidantha", "Baa Baa"]
+    },
+    {
+      name: "Armaan Malik",
+      songs: ["Ondu Malebillu", "Ninna Snehadinda", "Jeeva Hoovagide"]
+    },
+    {
+      name: "Vijay Prakash",
+      songs: ["Raajakumara", "Kareyole", "Belageddu"]
+    },
+    {
+      name: "Chandan Shetty",
+      songs: ["3 Peg", "Halagode", "Chocolate Girl"]
+    },
+    {
+      name: "Shreya Ghoshal",
+      songs: ["Ninnindale", "Kannale Kannale", "Kanasugala Nanagu"]
+    },
+    {
+      name: "Rajesh Krishnan",
+      songs: ["Preetse Preetse", "Janumada Gelathi", "Baaro Krishnayya"]
+    }
+  ]
+};
+
+// For lyrics tab: English and Hindi only
 const canShowLyrics = (langKey) => langKey === "en" || langKey === "hi";
 
 function fakeAuth({ username, password, isSignup }) {
@@ -246,85 +406,77 @@ function AuthForm({ onAuthComplete }) {
   );
 }
 
-/**
- * PUBLIC_INTERFACE
- * Dashboard showing language names in a 3x2 row-wise grid, using theme colors,
- * OR (if a language is selected), show that language's search bar, curated artist/song list, Back button.
- *
- * All React hooks now appear unconditionally, outside conditional branches to avoid "Rendered more hooks" errors.
- */
+// PUBLIC_INTERFACE - Updated Dashboard for language-artist-song-player view
 function Dashboard({ username }) {
-  // Always declare React state hooks at the top level.
   const [selectedLanguage, setSelectedLanguage] = useState(null);
+  const [songVideos, setSongVideos] = useState({});
+  const [loadingMap, setLoadingMap] = useState({});
+  const [errorMap, setErrorMap] = useState({});
+  const [openPlayers, setOpenPlayers] = useState({}); // {artist:song: true}
+
+  // Fetch videos for all artists/songs in the selected language
+  useEffect(() => {
+    let ignore = false;
+    if (!selectedLanguage) return;
+    const artists = ARTISTS[selectedLanguage] || [];
+    // Flatten list of { artist, song } objects for lookup by artist+song
+    const fetchAll = async () => {
+      let vids = {}, loads = {}, errs = {};
+      for (let artistObj of artists) {
+        for (let songTitle of artistObj.songs) {
+          const key = artistObj.name + "|" + songTitle;
+          loads[key] = true;
+          try {
+            // Always query as "Artist - Song" for accuracy
+            const videos = await fetchYouTubeVideos(`${artistObj.name} ${songTitle}`, { maxResults: 1 });
+            vids[key] = Array.isArray(videos) && videos[0] ? videos[0] : null;
+            errs[key] = (Array.isArray(videos) && videos.length > 0) ? "" : "No video found";
+          } catch (err) {
+            vids[key] = null;
+            errs[key] = "Video error";
+          }
+          loads[key] = false;
+          if (ignore) break;
+          // update state after each to smoothly enable thumbnails
+          setSongVideos((prev) => ({ ...prev, [key]: vids[key] }));
+          setLoadingMap((prev) => ({ ...prev, [key]: false }));
+          setErrorMap((prev) => ({ ...prev, [key]: errs[key] }));
+        }
+      }
+      if (!ignore) {
+        setSongVideos(vids);
+        setLoadingMap(loads);
+        setErrorMap(errs);
+      }
+    };
+    setSongVideos({});
+    setLoadingMap({});
+    setErrorMap({});
+    fetchAll();
+    return () => { ignore = true; };
+  }, [selectedLanguage]);
+
+  // Back & Search state for language view
   const [searchVal, setSearchVal] = useState("");
+  useEffect(() => { setSearchVal(""); }, [selectedLanguage]);
 
-  // Static or placeholder curated data for each language
-  const CURATED = {
-    en: [
-      { artist: "Taylor Swift", title: "Love Story" },
-      { artist: "Ed Sheeran", title: "Shape of You" },
-      { artist: "Adele", title: "Hello" },
-      { artist: "The Weeknd", title: "Blinding Lights" },
-      { artist: "Beyoncé", title: "Halo" }
-    ],
-    hi: [
-      { artist: "Arijit Singh", title: "Tum Hi Ho" },
-      { artist: "Shreya Ghoshal", title: "Teri Meri" },
-      { artist: "Sonu Nigam", title: "Kal Ho Naa Ho" },
-      { artist: "KK", title: "Zara Sa" },
-      { artist: "Atif Aslam", title: "Tu Jaane Na" }
-    ],
-    ta: [
-      { artist: "Anirudh Ravichander", title: "Why This Kolaveri Di" },
-      { artist: "Sid Sriram", title: "Ennodu Nee Irundhaal" },
-      { artist: "Shreya Ghoshal", title: "Munbe Vaa" },
-      { artist: "S.P. Balasubrahmanyam", title: "Nilaave Vaa" },
-      { artist: "Chinmayi", title: "Sara Sara" }
-    ],
-    te: [
-      { artist: "Devi Sri Prasad", title: "Seeti Maar" },
-      { artist: "Sid Sriram", title: "Inkem Inkem Inkem Kaavaale" },
-      { artist: "S. P. Balasubrahmanyam", title: "Priya Priya" },
-      { artist: "Chinmayi", title: "Yem Sandeham Ledu" },
-      { artist: "Shreya Ghoshal", title: "Hey Pillagada" }
-    ],
-    ml: [
-      { artist: "Sithara Krishnakumar", title: "Vaanam Thilathilakkanu" },
-      { artist: "Vijay Yesudas", title: "Malare" },
-      { artist: "K. S. Chithra", title: "Anuraga Vilochananayi" },
-      { artist: "Shreya Ghoshal", title: "Mizhiyoram" },
-      { artist: "Hesham Abdul Wahab", title: "Darshana" }
-    ],
-    kn: [
-      { artist: "Sonu Nigam", title: "Neene Neene" },
-      { artist: "Armaan Malik", title: "Ondu Malebillu" },
-      { artist: "Vijay Prakash", title: "Raajakumara" },
-      { artist: "Chandan Shetty", title: "3 Peg" },
-      { artist: "Shreya Ghoshal", title: "Ninnindale" }
-    ],
-  };
-
-  // We always render EITHER single-language detail view, or the main grid.
-  // Compute vars outside conditional for best eligibility checking.
-  const lang =
-    selectedLanguage !== null
-      ? LANGUAGES.find((l) => l.key === selectedLanguage)
-      : null;
-  const curatedList =
-    selectedLanguage !== null && CURATED[selectedLanguage]
-      ? CURATED[selectedLanguage]
-      : [];
-  const filtered =
-    selectedLanguage !== null && searchVal.trim()
-      ? curatedList.filter(
-          (s) =>
-            s.artist.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
-            s.title.toLowerCase().includes(searchVal.trim().toLowerCase())
-        )
-      : curatedList;
-
-  // If a language is selected, show the single-language detail view
+  // If a language is selected, show artists & their songs
   if (selectedLanguage) {
+    const langObj = LANGUAGES.find((l) => l.key === selectedLanguage);
+    const artists = ARTISTS[selectedLanguage];
+    // Search artists or song names
+    const filteredArtists = !searchVal.trim()
+      ? artists
+      : artists.map(artist =>
+        ({
+          ...artist,
+          songs: artist.songs.filter(song =>
+            song.toLowerCase().includes(searchVal.trim().toLowerCase()) ||
+            artist.name.toLowerCase().includes(searchVal.trim().toLowerCase())
+          )
+        })
+      ).filter(a => a.songs.length > 0);
+
     return (
       <main
         style={{
@@ -342,8 +494,8 @@ function Dashboard({ username }) {
             background: "#fff",
             borderRadius: 22,
             boxShadow: "0 4px 32px #f4e2eb2c",
-            maxWidth: 430,
-            width: "96vw",
+            maxWidth: 600,
+            width: "97vw",
             margin: "35px auto 0",
             padding: "37px 18px 22px 18px",
             display: "flex",
@@ -371,7 +523,7 @@ function Dashboard({ username }) {
                 lineHeight: 1.18,
               }}
             >
-              {lang && lang.label} Songs
+              {langObj && langObj.label} Artists & Songs
             </h2>
             <button
               className="btn"
@@ -387,7 +539,6 @@ function Dashboard({ username }) {
               }}
               onClick={() => {
                 setSelectedLanguage(null);
-                setSearchVal(""); // reset search for next entry
               }}
             >
               ← Back
@@ -397,7 +548,7 @@ function Dashboard({ username }) {
             type="text"
             value={searchVal}
             onChange={(e) => setSearchVal(e.target.value)}
-            placeholder={`Search by artist or song in ${lang ? lang.label : ""}`}
+            placeholder={`Search artists or songs in ${langObj ? langObj.label : ""}`}
             className="input"
             style={{
               ...inputStyle,
@@ -409,42 +560,94 @@ function Dashboard({ username }) {
             }}
             autoFocus
           />
-          <div style={{ marginBottom: 14 }}>
-            <div
-              style={{
-                color: "#b694bc",
-                fontWeight: 500,
-                fontSize: 15,
-                marginBottom: 9,
-              }}
-            >
-              Curated Artists & Songs
-            </div>
-            {filtered.length === 0 ? (
+          <div>
+            {filteredArtists.length === 0 ? (
               <div style={{ color: "#aaa", fontSize: 15, textAlign: "center" }}>
-                No songs found.
+                No matching artists or songs found.
               </div>
             ) : (
-              filtered.map((s, i) => (
-                <div
-                  key={s.artist + s.title + i}
-                  style={{
-                    background: COLORS.songCard,
-                    borderRadius: 9,
-                    boxShadow: "0 2px 10px #fe86d812",
-                    marginBottom: 13,
-                    padding: "14px 14px",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 4,
-                    border: `1.6px solid ${COLORS.primary}25`,
-                  }}
-                >
-                  <div style={{ fontWeight: 600, color: COLORS.accent, fontSize: 17 }}>
-                    {s.title}
+              filteredArtists.map((artist, i) => (
+                <div key={artist.name} style={{
+                  background: COLORS.songCard,
+                  borderRadius: 16,
+                  marginBottom: 20,
+                  boxShadow: "0 2px 16px #de92dc20",
+                  padding: "18px 16px 12px 16px"
+                }}>
+                  <div style={{
+                    fontWeight: 700,
+                    color: COLORS.accent,
+                    fontSize: 20,
+                    marginBottom: 8
+                  }}>
+                    {artist.name}
                   </div>
-                  <div style={{ color: "#a084a7", fontWeight: 500, fontSize: 14 }}>
-                    {s.artist}
+                  <div>
+                    {artist.songs.map(songTitle => {
+                      const songKey = artist.name + "|" + songTitle;
+                      const video = songVideos[songKey];
+                      const error = errorMap[songKey];
+                      const loading = loadingMap[songKey];
+                      return (
+                        <div key={songKey} style={{ display: "flex", alignItems: "flex-start", marginBottom: 15, gap: 12 }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 500, color: COLORS.accent, fontSize: 17 }}>
+                              {songTitle}
+                            </div>
+                            <div style={{ color: "#9c69ad", fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>
+                              {artist.name}
+                            </div>
+                            {/* Lyrics: offer tab if EN/HI */}
+                            {canShowLyrics(selectedLanguage) && (
+                              <LyricsFetcher artist={artist.name} title={songTitle} />
+                            )}
+                          </div>
+                          <div style={{ minWidth: 140, textAlign: "center" }}>
+                            {loading && (
+                              <div style={{ color: "#af78c2", fontSize: 13, marginTop: 9 }}>Loading video...</div>
+                            )}
+                            {!loading && video && video.thumbnail && (
+                              <div
+                                style={{ cursor: "pointer", borderRadius: 8, overflow: "hidden" }}
+                                onClick={() => setOpenPlayers(prev => ({ ...prev, [songKey]: !prev[songKey] }))}
+                                tabIndex={0}
+                                role="button"
+                                aria-label="Show/hide player"
+                              >
+                                <img
+                                  src={video.thumbnail}
+                                  alt={songTitle + " thumbnail"}
+                                  style={{ width: 135, borderRadius: 8, boxShadow: "0 2px 7px #df86e914" }}
+                                />
+                                <div style={{
+                                  fontSize: 13, color: COLORS.primary, background: "rgba(254,134,216,0.04)",
+                                  borderRadius: 7, marginTop: 2, marginBottom: 1
+                                }}>
+                                  {openPlayers[songKey] ? "Hide Video" : "Play Video"}
+                                </div>
+                              </div>
+                            )}
+                            {!loading && !video && (
+                              <div style={{ color: "#e95271", fontSize: 13, marginTop: 7 }}>
+                                {error || "No video found"}
+                              </div>
+                            )}
+                            {openPlayers[songKey] && video && video.videoId && (
+                              <iframe
+                                title={songTitle + " Video"}
+                                width="100%"
+                                height="115"
+                                style={{ borderRadius: 9, marginTop: 6, boxShadow: "0 4px 16px #eaabfd38" }}
+                                src={`https://www.youtube.com/embed/${video.videoId}`}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))
@@ -479,12 +682,10 @@ function Dashboard({ username }) {
             aria-label={`Show ${lang.label} music`}
             onClick={() => {
               setSelectedLanguage(lang.key);
-              setSearchVal(""); // clear search value whenever new lang selected
             }}
             onKeyPress={(e) => {
               if (e.key === "Enter" || e.key === " ") {
                 setSelectedLanguage(lang.key);
-                setSearchVal("");
               }
             }}
           >
@@ -496,327 +697,41 @@ function Dashboard({ username }) {
   );
 }
 
-/**
- * PUBLIC_INTERFACE
- * Renders a column for a language: shows YouTube-fetched suggestions,
- * offers search-per-language, and displays loading/error feedback.
- */
-function LanguageColumn({
-  language,
-  songSuggestions,
-  onSongClick,
-  showLyricsTab,
-  selectedLyricsSongIdx,
-  onCloseLyrics,
-  loading,
-  error,
-  fetchLyricsApi
-}) {
-  const [searchStr, setSearchStr] = useState("");
-  const [searchResult, setSearchResult] = useState([]);
-  const [searchLoading, setSearchLoading] = useState(false);
-  const [searchError, setSearchError] = useState("");
-  // --- Lyrics panel async state (for EN/HI) ---
-  const [lyricsState, setLyricsState] = useState({
-    text: "",
-    status: "idle", // "idle" | "loading" | "done" | "error"
-    error: ""
-  });
+// LyricsFetcher: Fetch lyrics for EN/HI if available and show a "Show Lyrics" expandable tab
+function LyricsFetcher({ artist, title }) {
+  const [open, setOpen] = useState(false);
+  const [lyrics, setLyrics] = useState("");
+  const [status, setStatus] = useState("idle"); // idle/loading/done/error
 
-  // Refetch lyrics on new tab open/selection (only for EN/HI columns)
   useEffect(() => {
-    let cancel = false;
-    if (
-      showLyricsTab &&
-      typeof selectedLyricsSongIdx === "number" &&
-      canShowLyrics(language.key)
-    ) {
-      const songList = searchStr.trim() ? searchResult : songSuggestions;
-      const currSong = songList[selectedLyricsSongIdx];
-      if (!currSong) {
-        setLyricsState({ text: "", status: "idle", error: "" });
-        return;
-      }
-      setLyricsState({ text: "", status: "loading", error: "" });
-      fetchLyricsApi(currSong.artist, currSong.title)
-        .then((lyrics) => {
-          if (!cancel)
-            setLyricsState({ text: lyrics, status: "done", error: "" });
-        })
-        .catch((e) => {
-          if (!cancel)
-            setLyricsState({
-              text: "",
-              status: "error",
-              error:
-                typeof e === "object" && e && e.message
-                  ? e.message
-                  : "Lyrics not found"
-            });
-        });
-    } else {
-      setLyricsState({ text: "", status: "idle", error: "" });
-    }
-    return () => {
-      cancel = true;
-    };
-    // eslint-disable-next-line
-  }, [showLyricsTab, selectedLyricsSongIdx, searchStr, searchResult, songSuggestions, language.key, fetchLyricsApi]);
-
-  // Handle search on user input
-  useEffect(() => {
-    let cancelled = false;
-    async function doSearch() {
-      if (!searchStr.trim()) {
-        setSearchResult([]);
-        setSearchLoading(false);
-        setSearchError("");
-        return;
-      }
-      setSearchLoading(true);
-      setSearchError("");
-      try {
-        const videos = await fetchYouTubeVideos(
-          `${searchStr} ${language.label} music`,
-          { maxResults: 7 }
-        );
-        if (!cancelled) setSearchResult(videos);
-      } catch (err) {
-        if (!cancelled) setSearchError("Error fetching results");
-      } finally {
-        if (!cancelled) setSearchLoading(false);
-      }
-    }
-    doSearch();
-    return () => { cancelled = true; };
-    // Only run effect when searchStr or language changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchStr, language.label]);
-
-  // Show search results if searching, otherwise suggestions
-  let songList = searchStr.trim()
-    ? searchResult
-    : songSuggestions;
-
-  let isLoading = searchStr.trim() ? searchLoading : loading;
-  let showError = searchStr.trim() ? searchError : error;
+    if (!open) return;
+    setStatus("loading");
+    fetchLyrics(artist, title)
+      .then(l => { setLyrics(l); setStatus("done"); })
+      .catch(() => { setLyrics(""); setStatus("error"); });
+  }, [open, artist, title]);
 
   return (
-    <section
-      style={{
-        background: "#fff",
-        borderRadius: 19,
-        boxShadow: "0 2px 15px #f4e2eb44",
-        padding: "14px 8px 16px 8px",
-        width: 1,
-        minWidth: 230,
-        maxWidth: 265,
-        flex: "1 1 220px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "stretch",
-        position: "relative"
-      }}
-    >
-      <div
-        style={{
-          textAlign: "center",
-          fontWeight: 600,
-          color: COLORS.primary,
-          fontSize: 20,
-          margin: "6px 0 6px 0",
-          letterSpacing: "0.01em"
-        }}
+    <div>
+      <button
+        className="link-btn"
+        style={{ marginTop: 3, marginBottom: 3, fontSize: 13 }}
+        onClick={() => setOpen(v => !v)}
       >
-        {language.label}
-      </div>
-      <input
-        type="text"
-        value={searchStr}
-        placeholder={`Search in ${language.label}...`}
-        onChange={(e) => setSearchStr(e.target.value)}
-        style={{
-          ...inputStyle,
-          background: COLORS.searchBar,
-          color: COLORS.accent,
-          border: `1px solid ${COLORS.primary}`,
-          fontWeight: 500,
-          padding: "8px 8px",
-          marginBottom: 12,
-          fontSize: 16
-        }}
-      />
-      <div style={{ flex: "1 1 auto", minHeight: 50, marginBottom: 5 }}>
-        {isLoading ? (
-          <div style={{ color: "#af78c2", textAlign: "center", fontSize: 15 }}>
-            Loading...
-          </div>
-        ) : showError ? (
-          <div style={{ color: "#d33a4a", textAlign: "center", fontSize: 14 }}>
-            {showError}
-          </div>
-        ) : songList.length === 0 ? (
-          <div style={{ color: "#aaa", textAlign: "center", fontSize: 15 }}>
-            No results found.
-          </div>
-        ) : (
-          songList.map((song, idx) => (
-            <SongCard
-              key={(song.title || "") + (song.artist || "") + (song.videoId || idx)}
-              song={song}
-              langKey={language.key}
-              idx={idx}
-              canShowLyrics={canShowLyrics(language.key) && !!song.lyrics}
-              onClick={() => onSongClick(idx)}
-            />
-          ))
-        )}
-      </div>
-      {/* Lyrics Tab - only for columns that support it and have a selected song */}
-      {showLyricsTab && typeof selectedLyricsSongIdx === "number" && (
-        <LyricsPanel
-          song={{
-            ...songList[selectedLyricsSongIdx],
-            lyrics:
-              lyricsState.status === "done"
-                ? lyricsState.text
-                : undefined
-          }}
-          languageLabel={language.label}
-          onClose={onCloseLyrics}
-          lyricsStatus={lyricsState.status}
-          lyricsError={lyricsState.error}
-        />
-      )}
-    </section>
-  );
-}
-
-// PUBLIC_INTERFACE
-function SongCard({ song, canShowLyrics, onClick }) {
-  return (
-    <div
-      onClick={canShowLyrics ? onClick : undefined}
-      style={{
-        background: COLORS.songCard,
-        margin: "7px 4px",
-        borderRadius: 9,
-        padding: "12px 13px",
-        marginBottom: 7,
-        cursor: canShowLyrics ? "pointer" : "default",
-        border: canShowLyrics ? `2px solid ${COLORS.primary}` : `1px solid #ececec`,
-        boxShadow: canShowLyrics
-          ? `0 2px 10px ${COLORS.primary}18`
-          : "0 1px 4px #eee",
-        transition: "background 0.13s"
-      }}
-      title={canShowLyrics ? "Select to see lyrics" : undefined}
-    >
-      <div style={{ fontWeight: 600, fontSize: 16, color: COLORS.accent }}>
-        {song.title}
-      </div>
-      <div style={{ color: "#a084a7", fontSize: 13, fontWeight: 500 }}>
-        {song.artist}
-      </div>
-      {canShowLyrics && (
-        <div
-          style={{
-            marginTop: 4,
-            fontSize: 13.5,
-            color: COLORS.primary,
-            fontWeight: 400
-          }}
-        >
-          {/* Song provides lyrics */}
-          <span
-            style={{
-              background: "#fff3ff",
-              padding: "1.5px 7px",
-              borderRadius: 9,
-              fontSize: 12.3,
-              marginLeft: 2
-            }}
-          >
-            View Lyrics
-          </span>
+        {open ? "Hide Lyrics" : "Show Lyrics"}
+      </button>
+      {open && (
+        <div style={{
+          marginTop: 5, background: "#f8f0fa", borderLeft: `4px solid ${COLORS.primary}`,
+          borderRadius: 8, padding: "10px 13px", color: COLORS.accent, fontSize: 15, boxShadow: "0 2px 12px #c7afb078"
+        }}>
+          {status === "loading"
+            ? "Loading lyrics..."
+            : status === "error"
+              ? "Lyrics not available."
+              : lyrics}
         </div>
       )}
-    </div>
-  );
-}
-
-// PUBLIC_INTERFACE
-function LyricsPanel({ song, languageLabel, onClose, lyricsStatus, lyricsError }) {
-  return (
-    <div
-      style={{
-        position: "absolute",
-        top: 61,
-        left: 8,
-        right: 8,
-        zIndex: 99,
-        background: COLORS.secondary,
-        border: `2px solid ${COLORS.primary}`,
-        borderRadius: 15,
-        boxShadow: "0 8px 30px #bc6aa058",
-        padding: "23px 18px 14px 18px",
-        minHeight: 200,
-        maxHeight: 310,
-        overflowY: "auto",
-        color: COLORS.accent,
-        transition: "all 0.18s ease"
-      }}
-      tabIndex={0}
-    >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div
-          style={{ fontWeight: 700, fontSize: 19, color: COLORS.primary, marginBottom: 4 }}
-        >
-          Lyrics: <span style={{ color: COLORS.accent }}>{song.title}</span>
-        </div>
-        <button
-          className="btn"
-          style={{
-            minWidth: 0,
-            padding: "4px 10px",
-            fontSize: 15,
-            background: COLORS.primary,
-            color: COLORS.lightText,
-            border: `1px solid ${COLORS.accent}`,
-            borderRadius: 8
-          }}
-          onClick={onClose}
-        >Close</button>
-      </div>
-      <div style={{
-        marginBottom: 7,
-        color: "#906575",
-        fontWeight: 500,
-        fontSize: 14
-      }}>
-        {song.artist} &mdash; {languageLabel}
-      </div>
-      <pre
-        style={{
-          fontFamily: "inherit",
-          fontSize: 15.2,
-          background: "#faf7fa",
-          padding: 12,
-          borderRadius: 9,
-          marginTop: 7,
-          whiteSpace: "pre-wrap",
-          color: COLORS.accent
-        }}
-      >
-        {lyricsStatus === "loading"
-          ? "Loading lyrics..."
-          : lyricsStatus === "error"
-          ? (lyricsError || "Lyrics not available.")
-          : song.lyrics
-          ? song.lyrics
-          : "Lyrics not available."
-        }
-      </pre>
     </div>
   );
 }
