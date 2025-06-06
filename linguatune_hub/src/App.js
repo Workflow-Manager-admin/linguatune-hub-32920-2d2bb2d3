@@ -909,21 +909,28 @@ function Dashboard({ username }) {
                       {error?.includes("limit") ? (
                         <>
                           <span role="img" aria-label="sad">😕</span>{" "}
-                          <strong>YouTube API limit reached.</strong> Try again later.
+                          <strong>YouTube API limit reached.</strong> Try again later.<br />
+                          <span style={{ color: "#b43867", fontSize: 10 }}>
+                            (If you frequently see this, this is a demo site and the API quota resets daily.<br />
+                            Try searching directly on YouTube, or retry in a few hours!)
+                          </span>
                         </>
                       ) : error ? (
                         <>
                           <span role="img" aria-label="no-video">🎬</span>{" "}
                           <span>
                             {error === "No video found." || error === "No result" || error === "No video"
-                              ? "No music video found for this song."
+                              ? "No music video found for this song. Please double-check the artist and song name, or try a wider search."
                               : error}
                           </span>
                         </>
                       ) : (
                         <>
                           <span role="img" aria-label="not-found">🔍</span>{" "}
-                          No music video available.
+                          No music video available.<br />
+                          <span style={{ color: "#b43867", fontSize: 10 }}>
+                            (Try rewording your search, or visit YouTube directly.)
+                          </span>
                         </>
                       )}
                     </div>
