@@ -104,12 +104,17 @@ function makeDemoArtists(langKey) {
       { name: "Amaal Mallik", songs: ["Sooraj Dooba Hain", "Main Hoon Hero Tera", "Kar Gayi Chull", "Naina", "Gulabi 2.0"] }
     ],
     ta: [
-      { name: "Ilaiyaraaja", songs: ["Mandram Vandha", "Nilaave Vaa", "Ennulle Ennulle", "Anandha Raagam", "Valaiyosai"] },
+      // Ilaiyaraaja only his own true hits; include En Iniya Pon Nilave here, remove from Yuvan
+      { name: "Ilaiyaraaja", songs: ["Mandram Vandha", "Nilaave Vaa", "Ennulle Ennulle", "Anandha Raagam", "Valaiyosai", "En Iniya Pon Nilave"] },
       { name: "A. R. Rahman", songs: ["New York Nagaram", "Munbe Vaa", "Ennodu Nee Irundhal", "Uyire Uyire", "Vennilave Vennilave"] },
       { name: "Anirudh Ravichander", songs: ["Vaathi Coming", "Why This Kolaveri Di", "Chellamma", "Kaadhal Kan Kattudhe", "Neeyum Naanum"] },
-      { name: "Sean Roldan", songs: ["Vaanam Kottattum", "Mayakka Ponna", "Maara Theme", "Paraak Paraak", "Kaalam Ingu Sari Illai"] },
+      // 'Maara Theme' should appear under Ghibran, not Sean Roldan
+      { name: "Sean Roldan", songs: ["Vaanam Kottattum", "Mayakka Ponna", "Paraak Paraak", "Kaalam Ingu Sari Illai"] },
+      { name: "Ghibran", songs: ["Maara Theme", "Sara Sara", "Vikram Title Track", "Neeye", "Raja Raja Chozhan"] },
       { name: "Harris Jayaraj", songs: ["Un Perai Sollum", "Neethane En Ponvasantham", "Vaarayo Vaarayo", "Vaseegara", "Uyirin Uyire"] },
-      { name: "Yuvan Shankar Raja", songs: ["Idhu Varai", "Saravana", "Pudhu Metro Rail", "Ninaithu Ninaithu", "En Iniya Pon Nilave"] }
+      // Saravana should be only under Srikanth Deva, remove from Yuvan
+      { name: "Yuvan Shankar Raja", songs: ["Idhu Varai", "Pudhu Metro Rail", "Ninaithu Ninaithu"] },
+      { name: "Srikanth Deva", songs: ["Saravana", "Ulagam Unnai", "Dhanushka", "Madura Veeran", "Kadhal Virus"] }
     ],
     te: [
       { name: "Devi Sri Prasad", songs: ["Seeti Maar", "Ringa Ringa", "Top Lesi Poddi", "Butta Bomma", "Gabbar Singh Title"] },
