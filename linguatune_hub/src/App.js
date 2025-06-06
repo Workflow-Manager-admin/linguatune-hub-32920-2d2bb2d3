@@ -453,6 +453,7 @@ function Dashboard({ username }) {
   useEffect(() => {
     setSearchVals({ singer: "", director: "" });
     setExpandedArtist({ singer: null, director: null });
+    setActiveRole("singer"); // Reset toggle to Singers when switching languages
   }, [selectedLanguage]);
 
   // -- Single Language: Modernized/Responsive Two Columns: Singers | Directors
