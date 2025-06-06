@@ -12,6 +12,7 @@ export const YOUTUBE_API_KEY = "AIzaSyDiFCOiIRftlin1m8BTbp4jMvNnNy7tPyc"; // Pro
  * @returns {Promise<Array>} Array of YouTube video info objects
  */
 export async function fetchYouTubeVideos(query, opts = {}) {
+  // Always use the exported API key variable for consistency.
   if (!YOUTUBE_API_KEY) {
     throw new Error("YouTube API key is not set.");
   }
@@ -29,20 +30,40 @@ export async function fetchYouTubeVideos(query, opts = {}) {
   });
 
   const url = `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`YouTube API error: ${response.statusText}`);
+  let response;
+  try {
+    response = await fetch(url);
+  } catch (err) {
+    // Network error or similar
+    return [];
   }
-  const data = await response.json();
-  if (!data.items) return [];
+  if (!response.ok) {
+    // Detect API quota errors (YouTube sends 403 w/ details in .error.errors[0].reason) or generic errors
+    let errMsg = `YouTube API error: ${response.statusText}`;
+    try {
+      const errJson = await response.json();
+      if (errJson.error && errJson.error.errors && errJson.error.errors[0] && errJson.error.errors[0].reason) {
+        errMsg = `YouTube API error: ${errJson.error.errors[0].reason}`;
+      }
+    } catch {}
+    // Graceful fallback: treat as "no results"
+    return [];
+  }
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    return [];
+  }
+  if (!data || !Array.isArray(data.items) || data.items.length === 0) {
+    return [];
+  }
   // Map YouTube response to the app's song item shape
   return data.items.map((item) => ({
     videoId: item.id.videoId,
     title: item.snippet.title,
     artist: item.snippet.channelTitle,
     thumbnail: item.snippet.thumbnails && item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : "",
-    // Lyrics unavailable by default; demo only
-    lyrics: null,
+    lyrics: null
   }));
 }
