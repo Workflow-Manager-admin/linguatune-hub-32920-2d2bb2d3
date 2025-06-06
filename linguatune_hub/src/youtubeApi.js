@@ -1,4 +1,7 @@
-const API_KEY = "AIzaSyDiFCOiIRftlin1m8BTbp4jMvNnNy7tPyc"; // DEMO KEY, hardcoded per requirements
+/**
+ * Exports the YouTube Data API key for use across the app to ensure a single source of truth.
+ */
+export const YOUTUBE_API_KEY = "AIzaSyDiFCOiIRftlin1m8BTbp4jMvNnNy7tPyc"; // Provided API key
 
 /**
  * PUBLIC_INTERFACE
@@ -9,14 +12,14 @@ const API_KEY = "AIzaSyDiFCOiIRftlin1m8BTbp4jMvNnNy7tPyc"; // DEMO KEY, hardcode
  * @returns {Promise<Array>} Array of YouTube video info objects
  */
 export async function fetchYouTubeVideos(query, opts = {}) {
-  if (!API_KEY) {
-    throw new Error("YouTube API key is not set in the environment variables.");
+  if (!YOUTUBE_API_KEY) {
+    throw new Error("YouTube API key is not set.");
   }
   const maxResults = opts.maxResults || 8;
   const regionCode = opts.regionCode || ""; // Optional: restrict by country
   const params = new URLSearchParams({
     part: "snippet",
-    key: API_KEY,
+    key: YOUTUBE_API_KEY,
     q: query,
     maxResults,
     type: "video",
