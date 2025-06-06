@@ -254,6 +254,8 @@ function AuthForm({ onAuthComplete }) {
 function Dashboard({ username }) {
   // State to track which language is currently selected (if any)
   const [selectedLanguage, setSelectedLanguage] = useState(null);
+  // Always define search value for detail view
+  const [searchVal, setSearchVal] = useState("");
 
   // Static or placeholder curated data for each language
   const CURATED = {
@@ -304,7 +306,6 @@ function Dashboard({ username }) {
   // If a language is selected, show the single-language detail view
   if (selectedLanguage) {
     const lang = LANGUAGES.find(l => l.key === selectedLanguage);
-    const [searchVal, setSearchVal] = useState("");
     // Filter curated artist/song list by searchVal (case-insensitive)
     const curatedList = CURATED[selectedLanguage] || [];
     const filtered = searchVal.trim()
@@ -370,7 +371,10 @@ function Dashboard({ username }) {
                 minWidth: 0,
                 fontSize: 16
               }}
-              onClick={() => setSelectedLanguage(null)}
+              onClick={() => {
+                setSelectedLanguage(null);
+                setSearchVal(""); // reset search for next entry
+              }}
             >
               ← Back
             </button>
@@ -459,9 +463,15 @@ function Dashboard({ username }) {
             tabIndex={0}
             role="button"
             aria-label={`Show ${lang.label} music`}
-            onClick={() => setSelectedLanguage(lang.key)}
+            onClick={() => {
+              setSelectedLanguage(lang.key);
+              setSearchVal(""); // clear search value whenever new lang selected
+            }}
             onKeyPress={e => {
-              if (e.key === "Enter" || e.key === " ") setSelectedLanguage(lang.key);
+              if (e.key === "Enter" || e.key === " ") {
+                setSelectedLanguage(lang.key);
+                setSearchVal("");
+              }
             }}
           >
             {lang.label}
