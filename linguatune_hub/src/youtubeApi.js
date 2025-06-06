@@ -1,4 +1,4 @@
-const API_KEY = process.env.REACT_APP_YOUTUBE_API_KEY;
+const API_KEY = "AIzaSyDiFCOiIRftlin1m8BTbp4jMvNnNy7tPyc"; // DEMO KEY, hardcoded per requirements
 
 /**
  * PUBLIC_INTERFACE
