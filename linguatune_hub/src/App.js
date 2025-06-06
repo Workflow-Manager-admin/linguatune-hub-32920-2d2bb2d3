@@ -554,13 +554,25 @@ function Dashboard({ username }) {
         setLoadingMap(lm => ({ ...lm, [key]: true }));
         fetchYouTubeVideos(`${artist.name} ${songTitle}`, { maxResults: 1 })
           .then(videos => {
-            setSongVideos(prev => ({ ...prev, [key]: (Array.isArray(videos) && videos[0]) ? videos[0] : null }));
-            setErrorMap(prev => ({ ...prev, [key]: (Array.isArray(videos) && videos[0]) ? "" : "No result" }));
+            // Detect and surface errors/quota/fallbacks
+            let errMsg = "";
+            let videoObj = null;
+            if (!Array.isArray(videos) || videos.length === 0) {
+              errMsg = "No video found.";
+            } else {
+              videoObj = videos[0];
+            }
+            setSongVideos(prev => ({ ...prev, [key]: videoObj }));
+            setErrorMap(prev => ({ ...prev, [key]: errMsg }));
             setLoadingMap(prev => ({ ...prev, [key]: false }));
           })
-          .catch(() => {
+          .catch((e) => {
+            // Try to give a friendly/youtube API quota hint if detectable.
             setSongVideos(prev => ({ ...prev, [key]: null }));
-            setErrorMap(prev => ({ ...prev, [key]: "Error" }));
+            setErrorMap(prev => ({ ...prev, [key]: (e && e.message && e.message.indexOf("quota") >= 0)
+              ? "YouTube API limit reached. Please try later."
+              : "Could not load video."
+            }));
             setLoadingMap(prev => ({ ...prev, [key]: false }));
           });
       });
