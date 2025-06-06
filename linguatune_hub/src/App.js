@@ -400,9 +400,23 @@ function Dashboard({ username }) {
     { key: "director", label: "Music Directors", icon: "🎼", accent: "#af78c2" }
   ];
 
+  // PUBLIC_INTERFACE
   function getArtists(langKey) {
     if (!langKey) return { singers: [], musicDirectors: [] };
-    return makeDemoArtists(langKey);
+    // For Indian languages: return first 10 singers, first 6 music directors
+    // For English: return first 15 singers, no music directors
+    const { singers, musicDirectors } = makeDemoArtists(langKey);
+    if (langKey === 'en') {
+      return {
+        singers: singers.slice(0, 15),
+        musicDirectors: [],
+      };
+    }
+    // Indian lang: Tamil, Hindi, Telugu, Malayalam, Kannada
+    return {
+      singers: singers.slice(0, 10),
+      musicDirectors: musicDirectors.slice(0, 6)
+    };
   }
 
   // Fetch videos for all artists and their songs for selected language (but only if changed)
