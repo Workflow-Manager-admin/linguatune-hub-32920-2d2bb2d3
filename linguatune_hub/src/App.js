@@ -506,6 +506,10 @@ function Dashboard({ username }) {
     const isNehaKakkar = artist.name === "Neha Kakkar";
     let hasNehaFootnote = false; // Tracks if we rendered one Neha footnote
 
+    // For Amaal Mallik+Kar Gayi Chull: show bottom attribution
+    const showKarGayiChullFootnote =
+      artist.name === "Amaal Mallik" && songs.includes("Kar Gayi Chull");
+
     return (
       <div style={{
         background: COLORS.songCard,
@@ -619,6 +623,18 @@ function Dashboard({ username }) {
                 {String.fromCharCode(8508) /* info/tooltip symbol unicode */}
               </span>{" "}
               Many of Neha's songs are remakes or are group performances.
+            </div>
+          )}
+          {/* For Amaal Mallik, show a footnote for Kar Gayi Chull attribution at card bottom if shown */}
+          {showKarGayiChullFootnote && (
+            <div style={{
+              color: "#e27187",
+              fontSize: 12,
+              marginTop: 8,
+              textAlign: "center",
+              opacity: 0.82
+            }}>
+              * Kar Gayi Chull: Original song by Badshah–Fazilpuria. Bollywood adaptation/arrangement by Amaal Mallik for Kapoor & Sons (2016).
             </div>
           )}
         </div>
