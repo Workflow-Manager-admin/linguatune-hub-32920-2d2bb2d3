@@ -111,9 +111,12 @@ function makeDemoArtists(langKey) {
       { name: "Ilaiyaraaja", songs: ["Mandram Vandha", "Nilaave Vaa", "Ennulle Ennulle", "Anandha Raagam", "Valaiyosai", "En Iniya Pon Nilave"] },
       { name: "A. R. Rahman", songs: ["New York Nagaram", "Munbe Vaa", "Ennodu Nee Irundhal", "Uyire Uyire", "Vennilave Vennilave"] },
       { name: "Anirudh Ravichander", songs: ["Vaathi Coming", "Why This Kolaveri Di", "Chellamma", "Kaadhal Kan Kattudhe", "Neeyum Naanum"] },
-      // 'Maara Theme' should appear under Ghibran, not Sean Roldan
+      // Sean Roldan: Correct list, do not include 'Maara Theme' or 'Kannaana Kanney'
       { name: "Sean Roldan", songs: ["Vaanam Kottattum", "Mayakka Ponna", "Paraak Paraak", "Kaalam Ingu Sari Illai"] },
+      // Ghibran: add 'Maara Theme'
       { name: "Ghibran", songs: ["Maara Theme", "Sara Sara", "Vikram Title Track", "Neeye", "Raja Raja Chozhan"] },
+      // D. Imman: add 'Kannaana Kanney'
+      { name: "D. Imman", songs: ["Kannaana Kanney"] },
       { name: "Harris Jayaraj", songs: ["Un Perai Sollum", "Neethane En Ponvasantham", "Vaarayo Vaarayo", "Vaseegara", "Uyirin Uyire"] },
       // Saravana should be only under Srikanth Deva, remove from Yuvan
       { name: "Yuvan Shankar Raja", songs: ["Idhu Varai", "Pudhu Metro Rail", "Ninaithu Ninaithu"] },
