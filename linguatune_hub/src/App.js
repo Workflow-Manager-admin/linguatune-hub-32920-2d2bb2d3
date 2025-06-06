@@ -245,20 +245,40 @@ function AuthForm({ onAuthComplete }) {
   );
 }
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * Dashboard showing all language columns with YouTube-powered suggestions and search.
+ */
 function Dashboard({ username }) {
-  // State: Which column/language is lyrics tab open for (if any) and what song is selected
+  // State: lyrics tab info
   const [selectedLyrics, setSelectedLyrics] = useState(null);
-  // Structure: { langKey, songIndex }
+  // Per-language initial suggestions (YouTube)
+  const [suggested, setSuggested] = useState({});
+  const [loading, setLoading] = useState({});
+  const [error, setError] = useState({});
 
-  // Called when a song is selected
+  useEffect(() => {
+    // On mount, fetch suggestions for each language from YouTube
+    LANGUAGES.forEach(async (lang) => {
+      setLoading(l => ({ ...l, [lang.key]: true }));
+      setError(e => ({ ...e, [lang.key]: null }));
+      try {
+        const videos = await fetchYouTubeVideos(lang.query, { maxResults: 6 });
+        setSuggested(s => ({ ...s, [lang.key]: videos }));
+      } catch (err) {
+        setError(e => ({ ...e, [lang.key]: err.message || "Error" }));
+      } finally {
+        setLoading(l => ({ ...l, [lang.key]: false }));
+      }
+    });
+  }, []);
+
+  // Handle song click for lyrics panel
   const handleSongClick = (langKey, idx) => {
     if (canShowLyrics(langKey)) {
       setSelectedLyrics({ langKey, songIndex: idx });
     }
   };
-
-  // Called when lyrics panel is closed
   const closeLyrics = () => setSelectedLyrics(null);
 
   return (
@@ -282,11 +302,13 @@ function Dashboard({ username }) {
           padding: "18px 16px 30px 16px"
         }}
       >
-        {LANGUAGES.map((lang, cIdx) => (
+        {LANGUAGES.map((lang) => (
           <LanguageColumn
             key={lang.key}
             language={lang}
-            songSuggestions={CURATED_SONGS[lang.key] || []}
+            songSuggestions={suggested[lang.key] || []}
+            loading={loading[lang.key]}
+            error={error[lang.key]}
             onSongClick={(idx) => handleSongClick(lang.key, idx)}
             showLyricsTab={
               selectedLyrics &&
