@@ -441,12 +441,60 @@ function Dashboard({ username }) {
     // eslint-disable-next-line
   }, [selectedLanguage, roleSelection, artistGridPage, searchVal]);
 
+  // Small helper: song context clarifications and footnotes by artist/song
+  function getSongClarification(artistName, songTitle) {
+    // Hindi singers
+    if (artistName === "Arijit Singh" && songTitle === "Raabta") {
+      return {
+        tooltip: "This is the newer 2017 version of 'Raabta' sung by Arijit, not the original.",
+        mark: <sup style={{ color: "#a492f1" }} title="Newer version (2017)">{'★'}</sup>
+      };
+    }
+    if (artistName === "Shreya Ghoshal" && songTitle === "Param Sundari") {
+      return {
+        tooltip: "This is a high-energy dance number.",
+        mark: <sup style={{ color: "#e98768" }} title="Dance number">{'•'}</sup>
+      };
+    }
+    if (artistName === "Shreya Ghoshal" && songTitle === "Sun Raha Hai") {
+      return {
+        tooltip: "This is the female version; the male version (by Ankit Tiwari) is more well known.",
+        mark: <sup style={{ color: "#e98768" }} title="Female version">{'ⓘ'}</sup>
+      };
+    }
+    // Neha Kakkar: footnote for remakes (all songs in demo list for her)
+    if (
+      artistName === "Neha Kakkar" &&
+      ["Aankh Marey", "Kala Chashma", "Dilbar", "Garmi", "Nikle Currant"].includes(songTitle)
+    ) {
+      return {
+        tooltip: "Neha featured in several remake or group songs.",
+        mark: <sup style={{ color: "#5e52b5" }} title="Remake/Group Song">{'Ὤ8'}</sup> // Unicode info, but fallback to i
+          || <sup style={{ color: "#5e52b5" }} title="Remake/Group Song">i</sup>
+      };
+    }
+    // Armaan Malik, Control
+    if (artistName === "Armaan Malik" && songTitle === "Control") {
+      return {
+        tooltip: "This is an English pop single released internationally.",
+        mark: <sup style={{ color: "#379ccc" }} title="English Pop">{'ἱ0'}</sup>
+          || <sup style={{ color: "#379ccc" }} title="English Pop">EN</sup>
+      };
+    }
+    // No context
+    return null;
+  }
+
   // PUBLIC_INTERFACE: Card for a single artist with vertical YouTube video list
   function ArtistGridCard({ artist, role }) {
     let songs = artist.songs && artist.songs.length < 5
       ? Array(5).fill(0).map((_, i) => artist.songs[i % artist.songs.length])
       : artist.songs;
     songs = songs.slice(0, 5);
+
+    // For Neha Kakkar, summarize remake/group note once per card as subtle footnote
+    const isNehaKakkar = artist.name === "Neha Kakkar";
+    let hasNehaFootnote = false; // Tracks if we rendered one Neha footnote
 
     return (
       <div style={{
@@ -489,15 +537,38 @@ function Dashboard({ username }) {
             const video = songVideos[songKey];
             const error = errorMap[songKey];
             const loading = loadingMap[songKey];
+
+            // Clarification context: Tooltip/footnote if appropriate
+            const clarify = getSongClarification(artist.name, songTitle);
+
             return (
-              <div key={songKey} style={{
-                background: "#f9edfa",
-                borderRadius: 8,
-                padding: 0,
-                marginBottom: idx < 4 ? 3 : 0,
-                display: "flex", flexDirection: "column", alignItems: "center"
-              }}>
-                <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.accent, marginBottom: 3 }}>{songTitle}</div>
+              <div
+                key={songKey}
+                style={{
+                  background: "#f9edfa",
+                  borderRadius: 8,
+                  padding: 0,
+                  marginBottom: idx < 4 ? 3 : 0,
+                  display: "flex", flexDirection: "column", alignItems: "center"
+                }}>
+                <div style={{
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: COLORS.accent,
+                  marginBottom: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4
+                }}>
+                  <span
+                    // Tooltip: Only show if clarification exists
+                    {...(clarify ? { title: clarify.tooltip, style: { cursor: "help" } } : {})}
+                  >
+                    {songTitle}
+                  </span>
+                  {/* Mark: add only if clarify Data */}
+                  {clarify && clarify.mark}
+                </div>
                 <div style={{ width: "100%", minHeight: 70 }}>
                   {loading && <div style={{ color: "#af78c2", fontSize: 11 }}>Loading…</div>}
                   {!loading && video && video.videoId &&
@@ -525,6 +596,21 @@ function Dashboard({ username }) {
               </div>
             );
           })}
+          {/* For Neha Kakkar, a single subtle footnote at card bottom */}
+          {isNehaKakkar && (
+            <div style={{
+              color: "#5e52b5",
+              fontSize: 12,
+              marginTop: 8,
+              textAlign: "center",
+              opacity: 0.72
+            }}>
+              <span style={{ fontSize: 14, verticalAlign: "middle" }}>
+                {String.fromCharCode(8508) /* info/tooltip symbol unicode */}
+              </span>{" "}
+              Many of Neha's songs are remakes or are group performances.
+            </div>
+          )}
         </div>
       </div>
     );
