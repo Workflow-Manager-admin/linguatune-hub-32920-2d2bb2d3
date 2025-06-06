@@ -129,3 +129,63 @@ input.input:focus {
     font-size: 1rem;
   }
 }
+
+/* --- LINGUA GRID CUSTOM DASHBOARD --- */
+.lang-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(130px, 1fr));
+  grid-template-rows: repeat(2, 1fr);
+  gap: 36px 32px;
+  margin-top: 48px;
+  margin-bottom: 48px;
+  padding: 24px 4vw;
+  background: var(--secondary);
+  border-radius: 24px;
+  box-shadow: 0 10px 34px #c5a3c91a;
+  max-width: 700px;
+  width: 96vw;
+  min-height: 320px;
+}
+
+.lang-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: var(--accent);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  border-radius: 18px;
+  box-shadow: 0 4px 22px #e87a4121;
+  border: 2.7px solid var(--card);
+  min-height: 95px;
+  transition: transform 0.14s, box-shadow 0.14s;
+  cursor: default;
+  user-select: none;
+}
+
+.lang-tile:hover, .lang-tile:focus {
+  transform: scale(1.04);
+  background: var(--accent);
+  color: var(--primary);
+  box-shadow: 0 6px 24px #fe86d851;
+  outline: none;
+}
+
+/* Responsive: stack grid for mobile */
+@media (max-width: 640px) {
+  .lang-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    gap: 22px 12px;
+    padding: 10px 0;
+    max-width: 320px;
+    min-height: 220px;
+  }
+  .lang-tile {
+    font-size: 1.18rem;
+    min-height: 58px;
+    padding: 8px 0;
+  }
+}
