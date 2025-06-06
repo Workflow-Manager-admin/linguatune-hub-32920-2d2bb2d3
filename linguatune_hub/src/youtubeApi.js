@@ -19,12 +19,24 @@ export async function fetchYouTubeVideos(query, opts = {}) {
     console.error("[YouTubeAPI] No API key set.");
     throw new Error("YouTube API key is not set.");
   }
+
+  // Query normalization: strip extra quotes/unicode and compress whitespace
+  function normalizeQuery(q) {
+    return q
+      .replace(/["'‘’“”´`]/g, "")            // remove all quote marks
+      .replace(/[^\w\sÀ-ſ\-\&\(\)]/g, "") // keep broad Unicode for music names
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  }
+
+  const normalizedQuery = normalizeQuery(query);
+
   const maxResults = opts.maxResults || 8;
   const regionCode = opts.regionCode || ""; // Optional: restrict by country
   const params = new URLSearchParams({
     part: "snippet",
     key: YOUTUBE_API_KEY,
-    q: query,
+    q: normalizedQuery,
     maxResults,
     type: "video",
     videoCategoryId: "10", // Music
