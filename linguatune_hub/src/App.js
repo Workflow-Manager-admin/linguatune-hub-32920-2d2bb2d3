@@ -564,6 +564,94 @@ function Dashboard({ username }) {
 
   // Small helper: song context clarifications and footnotes by artist/song
   function getSongClarification(artistName, songTitle) {
+    // Malayalam singers clarification & roles
+    // Sithara Krishnakumar: "Rahasyamay (duet)"
+    if (artistName === "Sithara Krishnakumar" && songTitle.includes("Rahasyamay")) {
+      return {
+        tooltip: "Duet with Zia Ul Haq (Kuruthi).",
+        mark: <sup style={{ color: "#bb7599" }} title="Duet">{'🎶'}</sup>
+      };
+    }
+    if (artistName === "Sithara Krishnakumar" && songTitle === "Ee Shishirakaalam") {
+      return {
+        tooltip: "Duet with Shahabaz Aman (Mayanadhi).",
+        mark: <sup style={{ color: "#bb7599" }} title="Duet">{'🎶'}</sup>
+      };
+    }
+    // Vijay Yesudas: Thaniye Mizhikal (duet), Omal Kanmani (male lead duet)
+    if (artistName === "Vijay Yesudas" && songTitle === "Thaniye Mizhikal (duet)") {
+      return {
+        tooltip: "Duet with Shreya Ghoshal.",
+        mark: <sup style={{ color: "#62abf5" }} title="Duet">{'🎶'}</sup>
+      };
+    }
+    if (artistName === "Vijay Yesudas" && songTitle === "Omal Kanmani") {
+      return {
+        tooltip: "Duet (male lead). Original film: Mayavi.",
+        mark: <sup style={{ color: "#62abf5" }} title="Duet">{'🎶'}</sup>
+      };
+    }
+    // K. S. Chithra: Vellarika and Manathe Chandanakkeeru (alt version)
+    if (artistName === "K. S. Chithra" && songTitle.includes("Vellarika")) {
+      return {
+        tooltip: "Duet with M. G. Sreekumar in Ayal Kadha Ezhuthukayanu.",
+        mark: <sup style={{ color: "#f2bb41" }} title="Duet">{'🎶'}</sup>
+      };
+    }
+    if (artistName === "K. S. Chithra" && songTitle.includes("(ver")) {
+      return {
+        tooltip: "Alternate/older version.",
+        mark: <sup style={{ color: "#b774d2" }} title="Alternate version">{'♻'}</sup>
+      };
+    }
+    // Hesham Abdul Wahab - clarify role in every song
+    if (artistName === "Hesham Abdul Wahab") {
+      if (songTitle.includes("Darshana")) {
+        return {
+          tooltip: "Singer & Composer (Hridayam, 2022)",
+          mark: <sup style={{ color: "#4db56a" }} title="Singer & Composer">{'◆'}</sup>
+        };
+      }
+      if (songTitle.includes("Kudukku")) {
+        return {
+          tooltip: "Composer only. Vocals by Vineeth Sreenivasan, MG Sreekumar.",
+          mark: <sup style={{ color: "#a777c0" }} title="Composer Only">{'C'}</sup>
+        };
+      }
+      if (songTitle.includes("Mayilpeeli")) {
+        return {
+          tooltip: "Composer only. Sung by KS Chithra et al.",
+          mark: <sup style={{ color: "#a777c0" }} title="Composer Only">{'C'}</sup>
+        };
+      }
+      if (songTitle.includes("Rathi Pushpam")) {
+        return {
+          tooltip: "Composer & singer.",
+          mark: <sup style={{ color: "#4db56a" }} title="Composer & Singer">{'◆'}</sup>
+        };
+      }
+      if (songTitle.includes("Thaarame Thaarame")) {
+        return {
+          tooltip: "Composer only; vocals by Sid Sriram.",
+          mark: <sup style={{ color: "#a777c0" }} title="Composer Only">{'C'}</sup>
+        };
+      }
+    }
+    // Vineeth Sreenivasan: all main hits, solo/lead, no footnote needed (covered by artist attribution)
+    // Shreya Ghoshal: Only put clarification if duet/well-known pairing
+    if (artistName === "Shreya Ghoshal" && songTitle.includes("Chanthu Thottille")) {
+      return {
+        tooltip: "Duet with Vijay Yesudas (Banaras, 2009).",
+        mark: <sup style={{ color: "#8d63c7" }} title="Duet">{'🎶'}</sup>
+      };
+    }
+    if (artistName === "Shreya Ghoshal" && songTitle.includes("Mandharacheppundo")) {
+      return {
+        tooltip: "Duet with P. Jayachandran.",
+        mark: <sup style={{ color: "#8d63c7" }} title="Duet">{'🎶'}</sup>
+      };
+    }
+
     // Hindi singers
     if (artistName === "Arijit Singh" && songTitle === "Raabta") {
       return {
