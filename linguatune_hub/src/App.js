@@ -572,98 +572,181 @@ function Dashboard({ username }) {
   // Determine what to render
   let content = null;
 
-  // Helper to render a full artist list, in a scrollable column, showing all required singers/music directors as a list
-  function ArtistRoleColumn({ artists, roleKey, label, icon, color, searchVal, onSearchChange }) {
-    return (
-      <section
-        style={{
-          flex: "1 1 330px",
-          minWidth: 260,
-          maxWidth: 380,
-          background: "var(--light-gray)",
-          borderRadius: 18,
-          boxShadow: "0 3px 18px #cf7a9f11",
-          padding: "22px 12px 19px 12px",
-          border: "2.2px solid var(--mid-gray)",
-          margin: 6
-        }}
-      >
-        <header style={{
-          fontWeight: 900,
-          color: color,
-          fontSize: 23,
-          letterSpacing: ".03em",
-          marginBottom: 7,
-          display: "flex", alignItems: "center", gap: 10
+  // --- NEW ARTIST GRID FOR SINGERS/DIRECTORS ---
+  function ArtistGridView({ artists, roleKey, label, icon, color, onBack, page, setPage, pageSize = 9, searchVal, onSearchChange }) {
+    // Pagination
+    const total = artists.length;
+    const maxPages = Math.ceil(total / pageSize);
+    const pagedArtists = artists.slice(page * pageSize, page * pageSize + pageSize);
+
+    // Ensure at least 5 songs per artist on card (we'll slice/loop if not enough)
+    function renderArtistCard(artist) {
+      let songs = artist.songs;
+      if (songs.length < 5) {
+        // Repeat songs if fewer than 5
+        songs = Array(5)
+          .fill(0)
+          .map((_, idx) => songs[idx % songs.length]);
+      }
+      return (
+        <div key={artist.name} style={{
+          background: COLORS.songCard,
+          borderRadius: 13,
+          boxShadow: "0 2px 16px #cd99d222",
+          border: `2.3px solid ${color}`,
+          color: COLORS.accent,
+          padding: "15px 10px 16px 10px",
+          fontWeight: 700,
+          minHeight: 240,
+          display: "flex",
+          flexDirection: "column",
         }}>
-          <span style={{ fontSize: 25 }}>{icon}</span>
-          {label}
-        </header>
-        <input
-          type="text"
-          value={searchVal}
-          onChange={e => onSearchChange(e.target.value)}
-          placeholder={`Search ${label} or song`}
-          className="input"
-          style={{
-            ...inputStyle,
-            background: COLORS.searchBar,
-            border: `1.4px solid ${color}`,
-            color: COLORS.accent,
-            marginBottom: 17,
-            fontSize: 15
-          }}
-        />
-        <div style={{
-          maxHeight: "62vh",
-          overflow: "auto",
-          borderRadius: 14,
-          paddingRight: 5
-        }}>
-          {artists.length === 0 ? (
-            <div style={{
-              color: "#aaa", fontSize: 13, margin: "16px 0", textAlign: "center"
-            }}>
-              No {label.toLowerCase()} found.
-            </div>
-          ) : (
-            artists.map(artist =>
-              <div
-                key={artist.name}
-                style={{
-                  background: COLORS.songCard,
-                  borderRadius: 8,
-                  boxShadow: "0 3px 11px #e87a4119",
-                  border: `2px solid ${color}`,
-                  color: COLORS.accent,
-                  marginBottom: 10,
-                  fontWeight: 700,
-                  fontSize: 15,
-                  padding: "8px 7px",
-                  transition: "all 0.10s"
-                }}
-                tabIndex={0}
-                aria-label={`Show songs for ${artist.name}`}
-              >
-                <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 2, color }}>{artist.name}</div>
-                <div style={{ marginTop: 6 }}>
-                  {(artist.songs && artist.songs.length > 0) ? (
-                    artist.songs.slice(0, 6).map(songTitle => (
-                      <SongItem artist={artist} songTitle={songTitle} role={roleKey} key={artist.name + "|" + songTitle} />
-                    ))
-                  ) : (
-                    <div style={{ color: "#888", fontSize: 13, fontWeight: 400 }}>
-                      No songs found for this artist.
-                    </div>
-                  )}
-                </div>
+          <div style={{ fontWeight: 800, fontSize: 20, color, marginBottom: 9, display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{fontSize:22}}>{icon}</span> {artist.name}
+          </div>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "flex-start", gap: 7 }}>
+            {songs.slice(0, 5).map((songTitle, i) => (
+              <div key={artist.name + "|" + songTitle + "|" + i} style={{
+                background: "#f9edfa",
+                borderRadius: 7,
+                marginTop: i === 0 ? 0 : 5,
+                padding: "7px 5px 9px 6px",
+                boxShadow: "0 1px 6px #ffb3e429"
+              }}>
+                <SongItem artist={artist} songTitle={songTitle} role={roleKey} />
               </div>
-            )
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <main style={{
+        minHeight: "calc(100vh - 80px)",
+        marginTop: 70,
+        background: COLORS.lightBg,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center"
+      }}>
+        <div style={{
+          background: "#fff",
+          borderRadius: 32,
+          boxShadow: "0 4px 32px #ecc2e624",
+          width: "98vw",
+          maxWidth: 1400,
+          margin: "36px auto 0",
+          padding: "26px 16px 30px 16px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "stretch"
+        }}>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 10,
+            gap: 11
+          }}>
+            <div style={{display:'flex',alignItems:"center",gap:9}}>
+              <button
+                className="btn"
+                style={{padding: "8px 13px",background:COLORS.primary,color:COLORS.lightText,border: `1px solid ${COLORS.accent}`,borderRadius: 8,fontWeight:600,marginRight:6 }}
+                onClick={onBack}
+              >← Back</button>
+              <div style={{ color, fontWeight: 900, fontSize: 27, lineHeight:1.22, display:"flex",alignItems:'center',gap:13 }}>
+                <span style={{fontSize: 27}}>{icon}</span>
+                {label}
+              </div>
+            </div>
+            <div>
+              <input
+                type="text"
+                value={searchVal}
+                onChange={e => { onSearchChange(e.target.value); setPage(0); }}
+                placeholder={`Search ${label} or song`}
+                className="input"
+                style={{
+                  ...inputStyle,
+                  background: COLORS.searchBar,
+                  border: `1.4px solid ${color}`,
+                  color: COLORS.accent,
+                  minWidth:180,
+                  fontSize: 16,
+                  marginBottom: 0
+                }}
+              />
+            </div>
+          </div>
+          <div style={{
+            marginTop:18,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 27,
+            padding: "0 4vw",
+            justifyItems: "center"
+          }}>
+            {pagedArtists.map(renderArtistCard)}
+            {pagedArtists.length === 0 &&
+              <div
+                style={{
+                  gridColumn: "span 3",
+                  color: "#aaa",
+                  fontSize: 16,
+                  textAlign: "center",
+                  margin: "41px 0"
+                }}
+              >
+                No {label.toLowerCase()} found.
+              </div>
+            }
+          </div>
+          {/* Pagination/scrollbar */}
+          {maxPages > 1 && (
+            <div style={{
+              marginTop: 22,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 19
+            }}>
+              <button className="btn"
+                style={{fontWeight:600,opacity: page === 0 ? 0.5 : 1}}
+                onClick={() => handleGridPageChange("prev", maxPages)}
+                disabled={page === 0}
+              >Prev</button>
+              <span style={{ fontWeight: 600, color: color, fontSize: 17 }}>
+                Page {page + 1} of {maxPages}
+              </span>
+              <button className="btn"
+                style={{fontWeight:600,opacity: page >= maxPages-1 ? 0.5 : 1}}
+                onClick={() => handleGridPageChange("next", maxPages)}
+                disabled={page >= maxPages-1}
+              >Next</button>
+            </div>
           )}
         </div>
-      </section>
+        <style>
+        {`
+          @media (max-width: 1000px) {
+            .artist-card-grid {
+              grid-template-columns: repeat(2, 1fr) !important;
+            }
+          }
+          @media (max-width: 660px) {
+            .artist-card-grid {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}
+        </style>
+      </main>
     );
   }
+
+  // State to track if grid mode is active and what role is shown ("singer" or "director")
+  const [showArtistGrid, setShowArtistGrid] = useState({enabled: false, role: "singer"});
 
   // If no language is selected, show the language grid
   if (!selectedLanguage) {
@@ -690,10 +773,14 @@ function Dashboard({ username }) {
               aria-label={`Show ${lang.label} music`}
               onClick={() => {
                 setSelectedLanguage(lang.key);
+                setShowArtistGrid({enabled:false,role:"singer"});
+                setArtistGridPage(0);
               }}
               onKeyPress={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   setSelectedLanguage(lang.key);
+                  setShowArtistGrid({enabled:false,role:"singer"});
+                  setArtistGridPage(0);
                 }
               }}
             >
@@ -716,6 +803,26 @@ function Dashboard({ username }) {
     // Apply search
     const filteredSingers = filterByRole(singersList, searchVals.singer);
     const filteredDirectors = filterByRole(directorsList, searchVals.director);
+
+    // When grid view is enabled, show it for the given role
+    if(showArtistGrid.enabled) {
+      const isSinger = showArtistGrid.role === "singer";
+      return (
+        <ArtistGridView
+          artists={isSinger ? filteredSingers : filteredDirectors}
+          roleKey={showArtistGrid.role}
+          label={isSinger ? "Singers" : "Music Directors"}
+          icon={isSinger ? "🎤" : "🎼"}
+          color={isSinger ? COLORS.primary : "#af78c2"}
+          onBack={() => { setShowArtistGrid({enabled:false,role:showArtistGrid.role}); setArtistGridPage(0); }}
+          page={artistGridPage}
+          setPage={setArtistGridPage}
+          pageSize={9}
+          searchVal={isSinger ? searchVals.singer : searchVals.director}
+          onSearchChange={v => setSearchVals(vals => ({ ...vals, [showArtistGrid.role]: v }))}
+        />
+      );
+    }
 
     // Responsive UI variables
     const columnsContainerStyle = {
@@ -780,34 +887,209 @@ function Dashboard({ username }) {
                 minWidth: 0,
                 fontSize: 15
               }}
-              onClick={() => setSelectedLanguage(null)}
+              onClick={() => {setSelectedLanguage(null); setShowArtistGrid({enabled:false,role:"singer"}); setArtistGridPage(0);}}
             >
               ← Back
             </button>
           </div>
+          {/* "Tabs" to switch to new 3x3 grid artist view per role */}
+          <div style={{
+            display:"flex",
+            gap:33,
+            justifyContent:"center",
+            marginBottom:17,
+            marginTop:8
+          }}>
+            <button
+              className="btn"
+              style={{background: COLORS.primary, color: COLORS.lightText, fontWeight:600, border:`1.5px solid ${COLORS.accent}`,fontSize:16, borderRadius: 8}}
+              onClick={() => { setShowArtistGrid({enabled:true,role:"singer"}); setArtistGridPage(0); }}
+            >🎤 Singers</button>
+            {isIndianLang && (
+              <button
+                className="btn"
+                style={{background:"#af78c2",color:COLORS.lightText, fontWeight:600, border:`1.5px solid ${COLORS.accent}`,fontSize:16, borderRadius: 8}}
+                onClick={() => { setShowArtistGrid({enabled:true,role:"director"}); setArtistGridPage(0); }}
+              >🎼 Music Directors</button>
+            )}
+          </div>
           {/* Columns container */}
           <div style={columnsContainerStyle} className="dashboard-columns">
-            {/* Always show singers column */}
-            <ArtistRoleColumn
-              artists={filteredSingers}
-              roleKey="singer"
-              label="Singers"
-              icon="🎤"
-              color={COLORS.primary}
-              searchVal={searchVals.singer}
-              onSearchChange={v => setSearchVals(vals => ({ ...vals, singer: v }))}
-            />
-            {/* Only show music directors column for Indian languages */}
-            {isIndianLang &&
-              <ArtistRoleColumn
-                artists={filteredDirectors}
-                roleKey="director"
-                label="Music Directors"
-                icon="🎼"
-                color="#af78c2"
-                searchVal={searchVals.director}
-                onSearchChange={v => setSearchVals(vals => ({ ...vals, director: v }))}
+            <section
+              style={{
+                flex: "1 1 330px",
+                minWidth: 260,
+                maxWidth: 380,
+                background: "var(--light-gray)",
+                borderRadius: 18,
+                boxShadow: "0 3px 18px #cf7a9f11",
+                padding: "22px 12px 19px 12px",
+                border: "2.2px solid var(--mid-gray)",
+                margin: 6
+              }}
+            >
+              <header style={{
+                fontWeight: 900,
+                color: COLORS.primary,
+                fontSize: 23,
+                letterSpacing: ".03em",
+                marginBottom: 7,
+                display: "flex", alignItems: "center", gap: 10
+              }}>
+                <span style={{ fontSize: 25 }}>🎤</span>
+                Singers
+              </header>
+              <input
+                type="text"
+                value={searchVals.singer}
+                onChange={e => setSearchVals(vals => ({ ...vals, singer: e.target.value }))}
+                placeholder={`Search Singers or song`}
+                className="input"
+                style={{
+                  ...inputStyle,
+                  background: COLORS.searchBar,
+                  border: `1.4px solid ${COLORS.primary}`,
+                  color: COLORS.accent,
+                  marginBottom: 17,
+                  fontSize: 15
+                }}
               />
+              <div style={{
+                maxHeight: "62vh",
+                overflow: "auto",
+                borderRadius: 14,
+                paddingRight: 5
+              }}>
+                {filteredSingers.length === 0 ? (
+                  <div style={{
+                    color: "#aaa", fontSize: 13, margin: "16px 0", textAlign: "center"
+                  }}>
+                    No singers found.
+                  </div>
+                ) : (
+                  filteredSingers.map(artist =>
+                    <div
+                      key={artist.name}
+                      style={{
+                        background: COLORS.songCard,
+                        borderRadius: 8,
+                        boxShadow: "0 3px 11px #e87a4119",
+                        border: `2px solid ${COLORS.primary}`,
+                        color: COLORS.accent,
+                        marginBottom: 10,
+                        fontWeight: 700,
+                        fontSize: 15,
+                        padding: "8px 7px",
+                        transition: "all 0.10s"
+                      }}
+                      tabIndex={0}
+                      aria-label={`Show songs for ${artist.name}`}
+                    >
+                      <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 2, color: COLORS.primary }}>{artist.name}</div>
+                      <div style={{ marginTop: 6 }}>
+                        {(artist.songs && artist.songs.length > 0) ? (
+                          artist.songs.slice(0, 6).map(songTitle => (
+                            <SongItem artist={artist} songTitle={songTitle} role="singer" key={artist.name + "|" + songTitle} />
+                          ))
+                        ) : (
+                          <div style={{ color: "#888", fontSize: 13, fontWeight: 400 }}>
+                            No songs found for this artist.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+            </section>
+            {isIndianLang &&
+              <section
+                style={{
+                  flex: "1 1 330px",
+                  minWidth: 260,
+                  maxWidth: 380,
+                  background: "var(--light-gray)",
+                  borderRadius: 18,
+                  boxShadow: "0 3px 18px #cf7a9f11",
+                  padding: "22px 12px 19px 12px",
+                  border: "2.2px solid var(--mid-gray)",
+                  margin: 6
+                }}
+              >
+                <header style={{
+                  fontWeight: 900,
+                  color: "#af78c2",
+                  fontSize: 23,
+                  letterSpacing: ".03em",
+                  marginBottom: 7,
+                  display: "flex", alignItems: "center", gap: 10
+                }}>
+                  <span style={{ fontSize: 25 }}>🎼</span>
+                  Music Directors
+                </header>
+                <input
+                  type="text"
+                  value={searchVals.director}
+                  onChange={e => setSearchVals(vals => ({ ...vals, director: e.target.value }))}
+                  placeholder={`Search Music Directors or song`}
+                  className="input"
+                  style={{
+                    ...inputStyle,
+                    background: COLORS.searchBar,
+                    border: `1.4px solid #af78c2`,
+                    color: COLORS.accent,
+                    marginBottom: 17,
+                    fontSize: 15
+                  }}
+                />
+                <div style={{
+                  maxHeight: "62vh",
+                  overflow: "auto",
+                  borderRadius: 14,
+                  paddingRight: 5
+                }}>
+                  {filteredDirectors.length === 0 ? (
+                    <div style={{
+                      color: "#aaa", fontSize: 13, margin: "16px 0", textAlign: "center"
+                    }}>
+                      No music directors found.
+                    </div>
+                  ) : (
+                    filteredDirectors.map(artist =>
+                      <div
+                        key={artist.name}
+                        style={{
+                          background: COLORS.songCard,
+                          borderRadius: 8,
+                          boxShadow: "0 3px 11px #e87a4119",
+                          border: `2px solid #af78c2`,
+                          color: COLORS.accent,
+                          marginBottom: 10,
+                          fontWeight: 700,
+                          fontSize: 15,
+                          padding: "8px 7px",
+                          transition: "all 0.10s"
+                        }}
+                        tabIndex={0}
+                        aria-label={`Show songs for ${artist.name}`}
+                      >
+                        <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 2, color: "#af78c2" }}>{artist.name}</div>
+                        <div style={{ marginTop: 6 }}>
+                          {(artist.songs && artist.songs.length > 0) ? (
+                            artist.songs.slice(0, 6).map(songTitle => (
+                              <SongItem artist={artist} songTitle={songTitle} role="director" key={artist.name + "|" + songTitle} />
+                            ))
+                          ) : (
+                            <div style={{ color: "#888", fontSize: 13, fontWeight: 400 }}>
+                              No songs found for this artist.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </section>
             }
           </div>
           {/* Responsive tweaks for mobile */}
